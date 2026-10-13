@@ -1,14 +1,14 @@
 @php
     $menu = [
-        ['ortu.dashboard', '🏠', 'Dashboard',           'ortu.dashboard'],
-        ['ortu.riwayat',   '📈', 'Riwayat Pemeriksaan', 'ortu.riwayat'],
+        ['ortu.dashboard', 'fa-house',      'Dashboard',           'ortu.dashboard'],
+        ['ortu.riwayat',   'fa-chart-line', 'Riwayat Pemeriksaan', 'ortu.riwayat'],
     ];
 @endphp
 
 <nav class="side">
     @foreach ($menu as [$rute, $ikon, $label, $pola])
         <a href="{{ route($rute) }}" class="{{ request()->routeIs($pola) ? 'on' : '' }}">
-            <span>{{ $ikon }}</span> {{ $label }}
+            <i class="fa-solid {{ $ikon }}"></i> {{ $label }}
         </a>
     @endforeach
 </nav>

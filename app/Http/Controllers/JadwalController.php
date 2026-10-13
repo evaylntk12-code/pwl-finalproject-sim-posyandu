@@ -8,10 +8,11 @@ class JadwalController extends Controller
 {
     public function index()
     {
-        return view('kader.jadwal.index', [
-            'jadwal' => DummyData::jadwal(),
-            'imunisasi' => DummyData::imunisasi(),
-        ]);
+        // Daftar hanya berisi yang masih menunggu. Yang Selesai pindah ke Laporan.
+        $jadwal = array_filter(DummyData::jadwal(), fn ($j) => $j['status'] === 'Terjadwal');
+        $imunisasi = array_filter(DummyData::imunisasi(), fn ($i) => $i['status'] === 'Terjadwal');
+
+        return view('kader.jadwal.index', compact('jadwal', 'imunisasi'));
     }
 
     public function createJadwal()

@@ -3,24 +3,44 @@
 @section('title', 'Data Pemeriksaan')
 
 @section('content')
+@php $adaGambar = file_exists(public_path('img/acuan-gizi.png')); @endphp
+
 <h2 class="judul">Data Pemeriksaan</h2>
 
-{{-- Nanti diganti gambar asli: <img src="{{ asset('img/acuan-gizi.png') }}"> --}}
-<div class="ref">🖼️ Gambar Tabel Acuan Gizi</div>
+{{-- Gambar tabel acuan gizi (klik untuk memperbesar) --}}
+@if ($adaGambar)
+    <button type="button" class="acuan" title="Klik untuk memperbesar"
+            onclick="document.getElementById('acuan-gizi').showModal()">
+        <img src="{{ asset('img/acuan-gizi.png') }}" alt="Tabel acuan status gizi">
+        <span class="acuan-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i> Perbesar</span>
+    </button>
+
+    <dialog id="acuan-gizi" class="lebar" onclick="if (event.target === this) this.close()">
+        <div class="modal-head"><h3>Tabel Acuan Status Gizi</h3></div>
+        <div class="modal-body">
+            <img class="acuan-besar" src="{{ asset('img/acuan-gizi.png') }}" alt="Tabel acuan status gizi">
+        </div>
+        <div class="modal-foot">
+            <form method="dialog"><button class="btn">Tutup</button></form>
+        </div>
+    </dialog>
+@else
+    <div class="ref"><i class="fa-solid fa-image"></i> Gambar Tabel Acuan Gizi</div>
+@endif
 
 <div class="bar">
-    <span class="badge">📅 Bulan berjalan: Oktober 2026</span>
-    @if (count($pemeriksaan) > 0)
-        <a class="btn" href="{{ route('kader.pemeriksaan.create') }}">+ Tambah Pemeriksaan</a>
-    @endif
+    <span class="info-bulan"><i class="fa-solid fa-calendar-days"></i> Bulan berjalan: Oktober 2026</span>
+    <a class="btn" href="{{ route('kader.pemeriksaan.create') }}">+ Tambah Pemeriksaan</a>
 </div>
 
 <div class="tb">
     <table>
         <thead>
             <tr>
-                <th>No</th><th>Nama</th><th>Tanggal</th><th>BB</th><th>TB</th>
-                <th>L. Kepala</th><th>L. Lengan</th><th>Status Gizi</th><th>Catatan</th><th>Aksi</th>
+                <th>No</th><th>Nama Balita</th><th>Tanggal</th>
+                <th>BB (kg)</th><th>TB (cm)</th>
+                <th>L. Kepala (cm)</th><th>L. Lengan (cm)</th>
+                <th>Status Gizi</th><th>Catatan</th><th>Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -36,19 +56,25 @@
                     <td>@include('partials.badge-gizi', ['status' => $p['status_gizi']])</td>
                     <td>{{ $p['catatan'] }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-sm" href="{{ route('kader.pemeriksaan.edit', $p['id']) }}">Ubah</a>
-                        <a class="btn btn-danger btn-sm" href="#">Hapus</a>
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.pemeriksaan.edit', $p['id']) }}"
+                           title="Ubah data" aria-label="Ubah pemeriksaan {{ $p['balita'] }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+
+                        {{-- Tahap UI: tombol Hapus masih placeholder. Diganti form DELETE pada pertemuan CRUD. --}}
+                        <a class="btn btn-danger btn-ikon" href="#"
+                           title="Hapus data" aria-label="Hapus pemeriksaan {{ $p['balita'] }}">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
                     </td>
                 </tr>
             @empty
                 <tr>
                     <td colspan="10">
                         @include('partials.empty', [
-                            'ikon'   => '🧸',
-                            'judul'  => 'Belum ada pemeriksaan bulan ini',
-                            'teks'   => 'Mulai catat hasil penimbangan dan pengukuran balita bulan Oktober 2026.',
-                            'rute'   => route('kader.pemeriksaan.create'),
-                            'tombol' => '+ Tambah Pemeriksaan',
+                            'ikon'  => 'fa-weight-scale',
+                            'judul' => 'Belum ada pemeriksaan bulan ini',
+                            'teks'  => 'Klik tombol + Tambah Pemeriksaan di atas untuk mencatat pemeriksaan pertama bulan Oktober 2026.',
                         ])
                     </td>
                 </tr>
@@ -57,6 +83,6 @@
     </table>
 </div>
 
-<p class="hint">ℹ️ Halaman ini hanya menampilkan pemeriksaan bulan berjalan. Data bulan sebelumnya otomatis terkunci dan bisa dilihat di
+<p class="hint"><i class="fa-solid fa-circle-info"></i> Halaman ini hanya menampilkan pemeriksaan bulan berjalan. Data bulan sebelumnya otomatis terkunci dan bisa dilihat di
     <a class="tautan" href="{{ route('kader.laporan.index') }}">Laporan Bulanan</a>.</p>
 @endsection

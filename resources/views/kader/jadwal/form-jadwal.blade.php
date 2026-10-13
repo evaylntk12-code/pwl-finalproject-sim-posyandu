@@ -6,7 +6,7 @@
 <h2 class="judul">{{ $jadwal ? 'Ubah' : 'Tambah' }} Jadwal Kegiatan</h2>
 
 <fieldset class="form-card">
-    <legend>📅 Jadwal Kegiatan</legend>
+    <legend><i class="fa-solid fa-calendar-days"></i> Jadwal Kegiatan</legend>
     <div class="fg"><label for="tanggal">Tanggal</label>
         <input type="date" id="tanggal" value="{{ $jadwal['tanggal'] ?? '' }}"></div>
     <div class="fg"><label for="waktu">Waktu</label>

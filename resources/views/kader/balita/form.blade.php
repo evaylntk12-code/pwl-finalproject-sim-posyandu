@@ -9,7 +9,7 @@
 
 <div class="g2">
     <fieldset>
-        <legend>👶 Data Balita</legend>
+        <legend><i class="fa-solid fa-baby"></i> Data Balita</legend>
         <div class="fg"><label for="nama">Nama balita</label>
             <input type="text" id="nama" value="{{ $balita['nama'] ?? '' }}"></div>
         <div class="fg"><label for="lahir">Tanggal lahir</label>
@@ -23,16 +23,18 @@
     </fieldset>
 
     <fieldset>
-        <legend>👪 Data Wali</legend>
+        <legend><i class="fa-solid fa-user-group"></i> Data Wali</legend>
         <div class="fg"><label for="wali">Nama wali</label>
             <input type="text" id="wali" value="{{ $balita['wali'] ?? '' }}"></div>
-        <div class="fg"><label for="hp">No. HP / alamat</label>
-            <input type="text" id="hp" value="{{ $balita['hp'] ?? '' }}"></div>
+        <div class="fg"><label for="hp">No. HP</label>
+            <input type="tel" id="hp" placeholder="08xx-xxxx-xxxx" value="{{ $balita['hp'] ?? '' }}"></div>
+        <div class="fg"><label for="alamat">Alamat</label>
+            <textarea id="alamat" rows="2">{{ $balita['alamat'] ?? '' }}</textarea></div>
     </fieldset>
 </div>
 
 <fieldset>
-    <legend>🔑 Akun Orang Tua</legend>
+    <legend><i class="fa-solid fa-key"></i> Akun Orang Tua</legend>
     <div class="g2">
         <div class="fg"><label for="email">Email</label>
             <input type="email" id="email" value="{{ $balita['email'] ?? '' }}"></div>
@@ -45,9 +47,9 @@
     </div>
 
     @if ($ubah)
-        <p class="hint">ℹ️ Kata sandi tidak diubah di sini. Untuk mereset, pakai tombol <b>🔑 Reset Sandi</b> di daftar balita.</p>
+        <p class="hint"><i class="fa-solid fa-circle-info"></i> Kata sandi tidak diubah di sini. Untuk mereset, pakai tombol <b><i class="fa-solid fa-key"></i> Reset Sandi</b> di daftar balita.</p>
     @else
-        <p class="hint">ℹ️ Orang tua akan diminta mengganti kata sandi awal saat masuk pertama.</p>
+        <p class="hint"><i class="fa-solid fa-circle-info"></i> Orang tua akan diminta mengganti kata sandi awal saat masuk pertama.</p>
     @endif
 </fieldset>
 

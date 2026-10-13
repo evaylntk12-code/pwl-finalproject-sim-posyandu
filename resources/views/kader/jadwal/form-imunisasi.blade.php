@@ -6,7 +6,7 @@
 <h2 class="judul">{{ $imunisasi ? 'Ubah Catatan Imunisasi' : 'Catat Imunisasi' }}</h2>
 
 <fieldset class="form-card">
-    <legend>💉 Catatan Imunisasi</legend>
+    <legend><i class="fa-solid fa-syringe"></i> Catatan Imunisasi</legend>
     <div class="fg"><label for="balita">Balita</label>
         <select id="balita">
             <option value="">Pilih...</option>
@@ -20,7 +20,7 @@
         <input type="date" id="tgl" value="{{ $imunisasi['tanggal'] ?? '' }}"></div>
     <div class="fg"><label for="next">Jadwal imunisasi berikutnya</label>
         <input type="date" id="next" value="{{ $imunisasi['berikutnya'] ?? '' }}"></div>
-    <p class="hint">ℹ️ Kalau jadwal imunisasi berikutnya berubah, cukup ubah tanggal ini.</p>
+    <p class="hint"><i class="fa-solid fa-circle-info"></i> Kalau jadwal imunisasi berikutnya berubah, cukup ubah tanggal ini.</p>
 </fieldset>
 
 {{-- Tahap UI: Simpan masih link. Diganti form POST pada pertemuan CRUD. --}}

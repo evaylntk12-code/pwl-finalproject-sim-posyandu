@@ -3,30 +3,54 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<h2 class="judul">Halo, Kader! 👋</h2>
+<h2 class="judul">Halo, Kader!</h2>
 
+{{-- Kartu statistik --}}
 <div class="grid">
     <div class="card stat">
-        <div class="ikon">👶</div>
+        <div class="ikon"><i class="fa-solid fa-baby"></i></div>
         <div><b>{{ $jumlahBalita }}</b><span>Jumlah balita</span></div>
     </div>
+
     <div class="card stat">
-        <div class="ikon pink">⚖️</div>
+        <div class="ikon pink"><i class="fa-solid fa-weight-scale"></i></div>
         <div><b>{{ $jumlahPemeriksaan }}</b><span>Pemeriksaan bulan ini</span></div>
     </div>
+
     <div class="card stat">
-        <div class="ikon">🌱</div>
-        <div><b>{{ $jumlahGiziBaik }}</b><span>Status gizi baik</span></div>
+        <div class="ikon {{ $jumlahPerluPerhatian > 0 ? 'alert' : '' }}">
+            <i class="fa-solid {{ $jumlahPerluPerhatian > 0 ? 'fa-triangle-exclamation' : 'fa-circle-check' }}"></i>
+        </div>
+        <div><b>{{ $jumlahPerluPerhatian }}</b><span>Perlu perhatian gizi</span></div>
     </div>
 </div>
 
-<div class="card jadwal-card">
-    <span>📅 Jadwal Posyandu Terdekat</span>
-    @if ($jadwal)
-        <h3>{{ date('d-m-Y', strtotime($jadwal['tanggal'])) }} · {{ $jadwal['waktu'] }} WIB</h3>
-        {{ $jadwal['keterangan'] }}
-    @else
-        <h3>Belum ada jadwal</h3>
-    @endif
+{{-- Jadwal dan imunisasi --}}
+<div class="grid">
+    <div class="card jadwal-card">
+        <span><i class="fa-solid fa-calendar-days"></i> Jadwal Posyandu Terdekat</span>
+        @if ($jadwal)
+            <h3>{{ date('d-m-Y', strtotime($jadwal['tanggal'])) }}</h3>
+            {{ $jadwal['waktu'] }} WIB · {{ $jadwal['keterangan'] }}
+        @else
+            <h3>Belum ada jadwal</h3>
+            Tambahkan jadwal di menu Jadwal & Imunisasi.
+        @endif
+    </div>
+
+    <div class="card pink-card">
+        <span><i class="fa-solid fa-syringe"></i> Imunisasi Terjadwal</span>
+        @if (count($imunisasiTerjadwal) > 0)
+            <h3>{{ count($imunisasiTerjadwal) }} balita</h3>
+            <ul class="daftar">
+                @foreach ($imunisasiTerjadwal as $i)
+                    <li>{{ $i['balita'] }} · {{ $i['jenis'] }}</li>
+                @endforeach
+            </ul>
+        @else
+            <h3>Belum ada imunisasi terjadwal</h3>
+        @endif
+        <a class="tautan" href="{{ route('kader.jadwal.index') }}">Lihat semua →</a>
+    </div>
 </div>
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Support\DummyData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class BalitaController extends Controller
 {
@@ -15,6 +16,12 @@ class BalitaController extends Controller
         if ($q) {
             $balita = array_filter($balita, fn ($b) => stripos($b['nama'], $q) !== false);
         }
+
+        // Usia (bulan) dihitung dari tanggal lahir, tidak disimpan di data
+        $balita = array_map(function ($b) {
+            $b['usia'] = (int) Carbon::parse($b['tgl_lahir'])->diffInMonths(now());
+            return $b;
+        }, $balita);
 
         return view('kader.balita.index', compact('balita'));
     }

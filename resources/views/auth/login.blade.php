@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="auth-card">
-    <div class="auth-logo">🌼</div>
+    <div class="auth-logo"><img src="{{ asset('img/logo.png') }}" alt="Logo Posyandu"></div>
     <h1>Selamat Datang</h1>
-    <p class="auth-sub">Jaga tumbuh kembang si kecil dengan sistem Posyandu Sehat Ceria</p>
+    <p class="auth-sub">Pantau tumbuh kembang buah hati, dengan tenang dan mudah</p>
 
     <form method="POST" action="{{ route('login.proses') }}">
         @csrf

@@ -36,7 +36,7 @@
     <div class="fg"><label for="catatan">Catatan</label>
         <textarea id="catatan" rows="3">{{ ($pemeriksaan['catatan'] ?? '') === '-' ? '' : ($pemeriksaan['catatan'] ?? '') }}</textarea></div>
 
-    <p class="hint">ℹ️ Tanggal hanya bisa di bulan berjalan. Data otomatis terkunci setelah pergantian bulan.</p>
+<p class="hint"><i class="fa-solid fa-circle-info"></i> Tanggal hanya bisa diubah di bulan berjalan. Data otomatis terkunci setelah pergantian bulan.</p>
 
     {{-- Tahap UI: Simpan masih link. Diganti form POST pada pertemuan CRUD. --}}
     <a class="btn" href="{{ route('kader.pemeriksaan.index') }}">Simpan</a>
