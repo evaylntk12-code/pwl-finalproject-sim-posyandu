@@ -2,39 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DummyData;
+use App\Models\Examination;
+use App\Models\Toddler;
 
 class PemeriksaanController extends Controller
 {
     // Hanya menampilkan pemeriksaan bulan berjalan.
     public function index()
     {
-        $pemeriksaan = array_filter(
-            DummyData::pemeriksaan(),
-            fn ($p) => str_starts_with($p['tanggal'], DummyData::BULAN_BERJALAN)
-        );
+        // with('toddler') mengambil data balita sekaligus (menghindari query berulang per baris)
+        $pemeriksaan = Examination::with('toddler')
+            ->whereYear('examination_date', now()->year)
+            ->whereMonth('examination_date', now()->month)
+            ->orderByDesc('examination_date')
+            ->orderBy('id')
+            ->get();
 
-        return view('kader.pemeriksaan.index', compact('pemeriksaan'));
+        $bulanLabel = now()->locale('id')->translatedFormat('F Y'); // contoh: Oktober 2026
+
+        return view('kader.pemeriksaan.index', compact('pemeriksaan', 'bulanLabel'));
     }
 
     public function create()
     {
         return view('kader.pemeriksaan.form', [
-            'pemeriksaan' => null,
-            'daftarBalita' => DummyData::balita(),
+            'pemeriksaan'  => null,
+            'daftarBalita' => Toddler::orderBy('name')->get(),
         ]);
     }
 
     public function edit(int $id)
     {
-        $pemeriksaan = DummyData::cari(DummyData::pemeriksaan(), $id);
-        abort_if(is_null($pemeriksaan), 404);
-        // Data bulan sebelumnya otomatis terkunci
-        abort_if(! str_starts_with($pemeriksaan['tanggal'], DummyData::BULAN_BERJALAN), 403, 'Data bulan sebelumnya sudah terkunci.');
+        $pemeriksaan = Examination::with('toddler')->findOrFail($id);
+
+        // Pemeriksaan bulan sebelumnya otomatis terkunci
+        abort_if(
+            ! $pemeriksaan->examination_date->isSameMonth(now(), true),
+            403,
+            'Data bulan sebelumnya sudah terkunci.'
+        );
 
         return view('kader.pemeriksaan.form', [
-            'pemeriksaan' => $pemeriksaan,
-            'daftarBalita' => DummyData::balita(),
+            'pemeriksaan'  => $pemeriksaan,
+            'daftarBalita' => Toddler::orderBy('name')->get(),
         ]);
     }
 }

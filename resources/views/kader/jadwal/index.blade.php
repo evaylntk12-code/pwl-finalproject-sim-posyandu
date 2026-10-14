@@ -21,23 +21,23 @@
             @forelse ($jadwal as $j)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ date('d-m-Y', strtotime($j['tanggal'])) }}</td>
-                    <td>{{ $j['waktu'] }}</td>
-                    <td>{{ $j['keterangan'] }}</td>
+                    <td>{{ $j->activity_date->format('d-m-Y') }}</td>
+                    <td>{{ $j->time_range }}</td>
+                    <td>{{ $j->description }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.edit', $j['id']) }}"
-                           title="Ubah data" aria-label="Ubah jadwal {{ $j['keterangan'] }}">
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.edit', $j->id) }}"
+                           title="Ubah data" aria-label="Ubah jadwal {{ $j->description }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
                         <button type="button" class="btn btn-outline btn-sm btn-reset"
-                                onclick="document.getElementById('selesai-jadwal-{{ $j['id'] }}').showModal()">
+                                onclick="document.getElementById('selesai-jadwal-{{ $j->id }}').showModal()">
                             <i class="fa-solid fa-circle-check"></i> Selesai
                         </button>
 
                         {{-- Tahap UI: tombol Hapus masih placeholder. Diganti form DELETE pada pertemuan CRUD. --}}
                         <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus jadwal {{ $j['keterangan'] }}">
+                           title="Hapus data" aria-label="Hapus jadwal {{ $j->description }}">
                             <i class="fa-solid fa-trash"></i>
                         </a>
                     </td>
@@ -71,23 +71,23 @@
             @forelse ($imunisasi as $i)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $i['balita'] }}</td>
-                    <td>{{ $i['jenis'] }}</td>
-                    <td>{{ date('d-m-Y', strtotime($i['tanggal'])) }}</td>
-                    <td>{{ date('d-m-Y', strtotime($i['berikutnya'])) }}</td>
+                    <td>{{ $i->toddler->name }}</td>
+                    <td>{{ $i->vaccine_type }}</td>
+                    <td>{{ $i->immunization_date->format('d-m-Y') }}</td>
+                    <td>{{ $i->next_date?->format('d-m-Y') ?? '-' }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.imunisasi.edit', $i['id']) }}"
-                           title="Ubah data" aria-label="Ubah imunisasi {{ $i['balita'] }}">
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.imunisasi.edit', $i->id) }}"
+                           title="Ubah data" aria-label="Ubah imunisasi {{ $i->toddler->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
                         <button type="button" class="btn btn-outline btn-sm btn-reset"
-                                onclick="document.getElementById('selesai-imunisasi-{{ $i['id'] }}').showModal()">
+                                onclick="document.getElementById('selesai-imunisasi-{{ $i->id }}').showModal()">
                             <i class="fa-solid fa-circle-check"></i> Selesai
                         </button>
 
                         <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus imunisasi {{ $i['balita'] }}">
+                           title="Hapus data" aria-label="Hapus imunisasi {{ $i->toddler->name }}">
                             <i class="fa-solid fa-trash"></i>
                         </a>
                     </td>
@@ -112,29 +112,29 @@
 
 {{-- ===== Popup konfirmasi Selesai: satu per baris ===== --}}
 @foreach ($jadwal as $j)
-    <dialog id="selesai-jadwal-{{ $j['id'] }}" onclick="if (event.target === this) this.close()">
+    <dialog id="selesai-jadwal-{{ $j->id }}" onclick="if (event.target === this) this.close()">
         <div class="modal-head">
             <h3><i class="fa-solid fa-circle-check"></i> Tandai selesai?</h3>
         </div>
         <div class="modal-body">
-            <p class="konfirmasi">Jadwal <b>{{ $j['keterangan'] }}</b> ({{ date('d-m-Y', strtotime($j['tanggal'])) }})
+            <p class="konfirmasi">Jadwal <b>{{ $j->description }}</b> ({{ $j->activity_date->format('d-m-Y') }})
                 akan dipindahkan ke Laporan dan tidak bisa diubah lagi.</p>
         </div>
         <div class="modal-foot">
             <form method="dialog"><button class="btn btn-outline">Batal</button></form>
-            {{-- Tahap UI: tombol ini masih link. Diganti form PATCH (status = selesai) pada pertemuan CRUD. --}}
+            {{-- Tahap UI: tombol ini masih link. Diganti form PATCH (status = Selesai) pada pertemuan CRUD. --}}
             <a class="btn" href="{{ route('kader.jadwal.index') }}">Ya, Selesai</a>
         </div>
     </dialog>
 @endforeach
 
 @foreach ($imunisasi as $i)
-    <dialog id="selesai-imunisasi-{{ $i['id'] }}" onclick="if (event.target === this) this.close()">
+    <dialog id="selesai-imunisasi-{{ $i->id }}" onclick="if (event.target === this) this.close()">
         <div class="modal-head">
             <h3><i class="fa-solid fa-circle-check"></i> Tandai selesai?</h3>
         </div>
         <div class="modal-body">
-            <p class="konfirmasi">Imunisasi <b>{{ $i['jenis'] }}</b> untuk <b>{{ $i['balita'] }}</b>
+            <p class="konfirmasi">Imunisasi <b>{{ $i->vaccine_type }}</b> untuk <b>{{ $i->toddler->name }}</b>
                 akan dipindahkan ke Laporan dan tidak bisa diubah lagi.</p>
         </div>
         <div class="modal-foot">

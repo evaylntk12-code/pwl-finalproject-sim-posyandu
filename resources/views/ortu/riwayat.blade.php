@@ -4,7 +4,7 @@
 
 @section('content')
 <h2 class="judul">Riwayat Pemeriksaan</h2>
-<p class="muted sub-judul"><i class="fa-solid fa-child"></i> {{ $anak['nama'] }}</p>
+<p class="muted sub-judul"><i class="fa-solid fa-child"></i> {{ $anak->name }}</p>
 
 {{-- Filter tahun: hanya muncul kalau data mencakup lebih dari satu tahun --}}
 @if (count($daftarTahun) > 1)
@@ -33,13 +33,13 @@
             @forelse ($riwayat as $p)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ date('d-m-Y', strtotime($p['tanggal'])) }}</td>
-                    <td>{{ $p['bb'] }}</td>
-                    <td>{{ $p['tb'] }}</td>
-                    <td>{{ $p['lk'] }}</td>
-                    <td>{{ $p['ll'] }}</td>
-                    <td>@include('partials.badge-gizi', ['status' => $p['status_gizi']])</td>
-                    <td>{{ $p['catatan'] }}</td>
+                    <td>{{ $p->examination_date->format('d-m-Y') }}</td>
+                    <td>{{ $p->weight }}</td>
+                    <td>{{ $p->height }}</td>
+                    <td>{{ $p->head_circumference }}</td>
+                    <td>{{ $p->arm_circumference }}</td>
+                    <td>@include('partials.badge-gizi', ['status' => $p->nutrition_status])</td>
+                    <td>{{ $p->notes ?: '-' }}</td>
                 </tr>
             @empty
                 <tr>

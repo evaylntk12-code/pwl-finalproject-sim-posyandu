@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function login()
     {
+        // Kalau sudah login, langsung ke dashboard sesuai perannya
+        if (Auth::check()) {
+            return $this->dashboardUntuk(Auth::user());
+        }
+
         return view('auth.login');
     }
 
@@ -16,14 +22,35 @@ class AuthController extends Controller
         return view('auth.lupa');
     }
 
-    // SEMENTARA (belum ada autentikasi): arahkan berdasarkan isi email.
-    // Akan diganti dengan Auth + role pada pertemuan authentication.
     public function proses(Request $request)
     {
-        $email = strtolower((string) $request->input('email'));
+        $kredensial = $request->only('email', 'password');
 
-        return str_contains($email, 'ortu')
-            ? redirect()->route('ortu.dashboard')
-            : redirect()->route('kader.dashboard');
+        // Auth::attempt mencocokkan email dan kata sandi dengan tabel users
+        if (! Auth::attempt($kredensial)) {
+            return back()
+                ->withInput($request->only('email'))
+                ->with('gagal', 'Email atau kata sandi salah.');
+        }
+
+        $request->session()->regenerate();
+
+        return $this->dashboardUntuk(Auth::user());
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
+
+    private function dashboardUntuk($user)
+    {
+        return $user->role === 'kader'
+            ? redirect()->route('kader.dashboard')
+            : redirect()->route('ortu.dashboard');
     }
 }

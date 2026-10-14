@@ -15,9 +15,10 @@ Route::get('/', fn () => redirect()->route('login'));
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'proses'])->name('login.proses');
 Route::get('/lupa-sandi', [AuthController::class, 'lupa'])->name('lupa-sandi');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// ---------- Area Kader Posyandu (admin) ----------
-Route::prefix('kader')->name('kader.')->group(function () {
+// ---------- Area Kader Posyandu (wajib login sebagai kader) ----------
+Route::middleware(['auth', 'role:kader'])->prefix('kader')->name('kader.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'kader'])->name('dashboard');
 
     // Data Balita & Wali
@@ -42,8 +43,8 @@ Route::prefix('kader')->name('kader.')->group(function () {
     Route::get('/ganti-sandi', [AkunController::class, 'sandi'])->name('sandi');
 });
 
-// ---------- Area Orang Tua ----------
-Route::prefix('orang-tua')->name('ortu.')->group(function () {
+// ---------- Area Orang Tua (wajib login sebagai orang tua) ----------
+Route::middleware(['auth', 'role:orang_tua'])->prefix('orang-tua')->name('ortu.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'ortu'])->name('dashboard');
     Route::get('/riwayat', [OrangTuaController::class, 'riwayat'])->name('riwayat');
     Route::get('/ganti-sandi', [AkunController::class, 'sandi'])->name('sandi');

@@ -8,11 +8,13 @@
 <fieldset class="form-card">
     <legend><i class="fa-solid fa-calendar-days"></i> Jadwal Kegiatan</legend>
     <div class="fg"><label for="tanggal">Tanggal</label>
-        <input type="date" id="tanggal" value="{{ $jadwal['tanggal'] ?? '' }}"></div>
-    <div class="fg"><label for="waktu">Waktu</label>
-        <input type="text" id="waktu" placeholder="09.00 - 12.00" value="{{ $jadwal['waktu'] ?? '' }}"></div>
+        <input type="date" id="tanggal" value="{{ $jadwal?->activity_date->format('Y-m-d') }}"></div>
+    <div class="fg"><label for="mulai">Jam mulai</label>
+        <input type="time" id="mulai" value="{{ $jadwal ? substr($jadwal->start_time, 0, 5) : '' }}"></div>
+    <div class="fg"><label for="selesai">Jam selesai (opsional)</label>
+        <input type="time" id="selesai" value="{{ $jadwal?->end_time ? substr($jadwal->end_time, 0, 5) : '' }}"></div>
     <div class="fg"><label for="ket">Keterangan</label>
-        <input type="text" id="ket" value="{{ $jadwal['keterangan'] ?? '' }}"></div>
+        <input type="text" id="ket" value="{{ $jadwal?->description }}"></div>
 </fieldset>
 
 {{-- Tahap UI: Simpan masih link. Diganti form POST pada pertemuan CRUD. --}}

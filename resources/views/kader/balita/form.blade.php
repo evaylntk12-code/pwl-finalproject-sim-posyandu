@@ -11,25 +11,25 @@
     <fieldset>
         <legend><i class="fa-solid fa-baby"></i> Data Balita</legend>
         <div class="fg"><label for="nama">Nama balita</label>
-            <input type="text" id="nama" value="{{ $balita['nama'] ?? '' }}"></div>
+            <input type="text" id="nama" value="{{ $balita->name ?? '' }}"></div>
         <div class="fg"><label for="lahir">Tanggal lahir</label>
-            <input type="date" id="lahir" value="{{ $balita['tgl_lahir'] ?? '' }}"></div>
+            <input type="date" id="lahir" value="{{ $ubah ? $balita->birth_date->format('Y-m-d') : '' }}"></div>
         <div class="fg"><label for="jk">Jenis kelamin</label>
             <select id="jk">
                 <option value="">Pilih...</option>
-                <option value="L" @selected(($balita['jk'] ?? '') === 'L')>Laki-laki</option>
-                <option value="P" @selected(($balita['jk'] ?? '') === 'P')>Perempuan</option>
+                <option value="L" @selected(($balita->gender ?? '') === 'L')>Laki-laki</option>
+                <option value="P" @selected(($balita->gender ?? '') === 'P')>Perempuan</option>
             </select></div>
     </fieldset>
 
     <fieldset>
         <legend><i class="fa-solid fa-user-group"></i> Data Wali</legend>
         <div class="fg"><label for="wali">Nama wali</label>
-            <input type="text" id="wali" value="{{ $balita['wali'] ?? '' }}"></div>
+            <input type="text" id="wali" value="{{ $balita->user->name ?? '' }}"></div>
         <div class="fg"><label for="hp">No. HP</label>
-            <input type="tel" id="hp" placeholder="08xx-xxxx-xxxx" value="{{ $balita['hp'] ?? '' }}"></div>
+            <input type="tel" id="hp" placeholder="08xx-xxxx-xxxx" value="{{ $balita->user->phone ?? '' }}"></div>
         <div class="fg"><label for="alamat">Alamat</label>
-            <textarea id="alamat" rows="2">{{ $balita['alamat'] ?? '' }}</textarea></div>
+            <textarea id="alamat" rows="2">{{ $balita->user->address ?? '' }}</textarea></div>
     </fieldset>
 </div>
 
@@ -37,7 +37,7 @@
     <legend><i class="fa-solid fa-key"></i> Akun Orang Tua</legend>
     <div class="g2">
         <div class="fg"><label for="email">Email</label>
-            <input type="email" id="email" value="{{ $balita['email'] ?? '' }}"></div>
+            <input type="email" id="email" value="{{ $balita->user->email ?? '' }}"></div>
 
         {{-- Kata sandi awal hanya ada di form tambah --}}
         @unless ($ubah)

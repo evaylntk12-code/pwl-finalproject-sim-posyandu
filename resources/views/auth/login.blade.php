@@ -10,8 +10,11 @@
 
     <form method="POST" action="{{ route('login.proses') }}">
         @csrf
+            @if (session('gagal'))
+                <p class="auth-error"><i class="fa-solid fa-circle-exclamation"></i> {{ session('gagal') }}</p>
+            @endif
         <label for="email">Alamat Email</label>
-        <input type="email" id="email" name="email" placeholder="Masukkan email Anda">
+        <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email Anda">
 
         <label for="password">Kata Sandi</label>
         <input type="password" id="password" name="password" placeholder="Masukkan kata sandi">
@@ -22,6 +25,6 @@
     </form>
 
     <p class="auth-foot">Belum punya akun? Hubungi kader Posyandu</p>
-    <p class="auth-demo">Sementara (belum ada autentikasi): email berisi "ortu" masuk sebagai Orang Tua, selain itu sebagai Kader.</p>
+    <p class="auth-demo">Akun demo (kata sandi: password): kader@email.com atau wali1@email.com</p>
 </div>
 @endsection

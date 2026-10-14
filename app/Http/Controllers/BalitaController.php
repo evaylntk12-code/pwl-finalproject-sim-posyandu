@@ -2,26 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DummyData;
+use App\Models\Toddler;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class BalitaController extends Controller
 {
     public function index(Request $request)
     {
         $q = $request->query('q');
-        $balita = DummyData::balita();
 
-        if ($q) {
-            $balita = array_filter($balita, fn ($b) => stripos($b['nama'], $q) !== false);
-        }
-
-        // Usia (bulan) dihitung dari tanggal lahir, tidak disimpan di data
-        $balita = array_map(function ($b) {
-            $b['usia'] = (int) Carbon::parse($b['tgl_lahir'])->diffInMonths(now());
-            return $b;
-        }, $balita);
+        // with('user') mengambil data wali sekaligus (menghindari query berulang per baris)
+        $balita = Toddler::with('user')
+            ->when($q, fn ($query) => $query->where('name', 'like', '%' . $q . '%'))
+            ->orderBy('name')
+            ->get();
 
         return view('kader.balita.index', compact('balita'));
     }
@@ -33,8 +27,8 @@ class BalitaController extends Controller
 
     public function edit(int $id)
     {
-        $balita = DummyData::cari(DummyData::balita(), $id);
-        abort_if(is_null($balita), 404);
+        // findOrFail: otomatis halaman 404 kalau id tidak ada
+        $balita = Toddler::with('user')->findOrFail($id);
 
         return view('kader.balita.form', compact('balita'));
     }

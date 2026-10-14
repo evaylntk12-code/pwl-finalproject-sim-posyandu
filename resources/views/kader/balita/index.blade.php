@@ -20,28 +20,29 @@
     <table>
         <thead>
             <tr>
-                <th>No</th><th>Nama Balita</th><th>Tgl Lahir</th><th>Usia</th><th>Jenis Kelamin</th><th>Nama Wali</th><th>No. HP</th><th>Aksi</th>
+                <th>No</th><th>Nama Balita</th><th>Tgl Lahir</th><th>Usia</th>
+                <th>Jenis Kelamin</th><th>Nama Wali</th><th>No. HP</th><th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($balita as $b)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $b['nama'] }}</td>
-                    <td>{{ date('d-m-Y', strtotime($b['tgl_lahir'])) }}</td>
-                    <td>{{ $b['usia'] }} bulan</td>
-                    <td>{{ $b['jk'] === 'P' ? 'Perempuan' : 'Laki-laki' }}</td>
-                    <td>{{ $b['wali'] }}</td>
-                    <td>{{ $b['hp'] }}</td>
+                    <td>{{ $b->name }}</td>
+                    <td>{{ $b->birth_date->format('d-m-Y') }}</td>
+                    <td>{{ $b->usia }} bulan</td>
+                    <td>{{ $b->gender === 'P' ? 'Perempuan' : 'Laki-laki' }}</td>
+                    <td>{{ $b->user->name }}</td>
+                    <td>{{ $b->user->phone }}</td>
                     <td class="aksi">
                         <button type="button" class="btn btn-outline btn-ikon"
-                                title="Lihat detail" aria-label="Lihat detail {{ $b['nama'] }}"
-                                onclick="document.getElementById('detail-{{ $b['id'] }}').showModal()">
+                                title="Lihat detail" aria-label="Lihat detail {{ $b->name }}"
+                                onclick="document.getElementById('detail-{{ $b->id }}').showModal()">
                             <i class="fa-solid fa-eye"></i>
                         </button>
 
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.balita.edit', $b['id']) }}"
-                        title="Ubah data" aria-label="Ubah data {{ $b['nama'] }}">
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.balita.edit', $b->id) }}"
+                           title="Ubah data" aria-label="Ubah data {{ $b->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
@@ -51,7 +52,7 @@
                         </a>
 
                         <a class="btn btn-danger btn-ikon" href="#"
-                        title="Hapus data" aria-label="Hapus data {{ $b['nama'] }}">
+                           title="Hapus data" aria-label="Hapus data {{ $b->name }}">
                             <i class="fa-solid fa-trash"></i>
                         </a>
                     </td>
@@ -73,27 +74,27 @@
 
 {{-- Popup detail: satu per balita --}}
 @foreach ($balita as $b)
-    <dialog id="detail-{{ $b['id'] }}" onclick="if (event.target === this) this.close()">
+    <dialog id="detail-{{ $b->id }}" onclick="if (event.target === this) this.close()">
         <div class="modal-head">
-            <div class="avatar {{ $b['jk'] === 'L' ? 'laki' : '' }}">
-                <i class="fa-solid {{ $b['jk'] === 'P' ? 'fa-child-dress' : 'fa-child' }}"></i>
+            <div class="avatar {{ $b->gender === 'L' ? 'laki' : '' }}">
+                <i class="fa-solid {{ $b->gender === 'P' ? 'fa-child-dress' : 'fa-child' }}"></i>
             </div>
             <div>
-                <h3>{{ $b['nama'] }}</h3>
-                <span class="badge {{ $b['jk'] === 'P' ? 'pink' : '' }}">
-                    {{ $b['jk'] === 'P' ? 'Perempuan' : 'Laki-laki' }}
+                <h3>{{ $b->name }}</h3>
+                <span class="badge {{ $b->gender === 'P' ? 'pink' : '' }}">
+                    {{ $b->gender === 'P' ? 'Perempuan' : 'Laki-laki' }}
                 </span>
             </div>
         </div>
 
         <div class="modal-body">
             <dl class="info">
-                <dt>Tanggal lahir</dt><dd>{{ date('d-m-Y', strtotime($b['tgl_lahir'])) }}</dd>
-                <dt>Usia</dt><dd>{{ $b['usia'] }} bulan</dd>
-                <dt>Nama wali</dt><dd>{{ $b['wali'] }}</dd>
-                <dt>No. HP</dt><dd>{{ $b['hp'] }}</dd>
-                <dt>Alamat</dt><dd>{{ $b['alamat'] }}</dd>
-                <dt>Email</dt><dd>{{ $b['email'] }}</dd>
+                <dt>Tanggal lahir</dt><dd>{{ $b->birth_date->format('d-m-Y') }}</dd>
+                <dt>Usia</dt><dd>{{ $b->usia }} bulan</dd>
+                <dt>Nama wali</dt><dd>{{ $b->user->name }}</dd>
+                <dt>No. HP</dt><dd>{{ $b->user->phone }}</dd>
+                <dt>Alamat</dt><dd>{{ $b->user->address }}</dd>
+                <dt>Email</dt><dd>{{ $b->user->email }}</dd>
             </dl>
         </div>
 

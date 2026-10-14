@@ -30,6 +30,12 @@ i.fa-solid{margin-right:6px}
 .dd-menu a:hover{background:var(--so)}
 .dd-menu a i{width:20px;text-align:center;color:var(--pr)}
  
+.dd-menu form{margin:0}
+.dd-menu button{display:block;width:100%;text-align:left;border:0;background:none;font:inherit;color:inherit;padding:9px 12px;border-radius:9px;cursor:pointer}
+.dd-menu button:hover{background:var(--so)}
+.dd-menu button i{width:20px;text-align:center;color:var(--pr)}
+.auth-error{background:#ffe3e6;color:#9b1b2f;border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:14px}
+
 /* Sidebar tetap, hanya area main yang di-scroll */
 .wrap{display:flex;flex:1;min-height:0}
 .side{width:230px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;padding:16px 12px;overflow-y:auto;background:var(--cd);border-right:1px solid var(--bd)}

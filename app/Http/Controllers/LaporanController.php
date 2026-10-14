@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DummyData;
+use App\Models\Examination;
+use App\Models\Immunization;
+use App\Models\Schedule;
+use App\Models\Toddler;
 use Illuminate\Http\Request;
 
 class LaporanController extends Controller
@@ -16,10 +19,6 @@ class LaporanController extends Controller
             '07' => 'Juli',    '08' => 'Agustus',  '09' => 'September',
             '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
         ];
-        $daftarTahun = ['2026', '2025', '2024'];
-
-        // Default: bulan dan tahun berjalan
-        [$tahunDefault, $bulanDefault] = explode('-', DummyData::BULAN_BERJALAN);
 
         // Tab aktif: pemeriksaan | imunisasi | kegiatan
         $judulTab = [
@@ -32,56 +31,85 @@ class LaporanController extends Controller
             $tab = 'pemeriksaan';
         }
 
-        // Validasi pilihan filter, kalau tidak valid pakai default
-        $bulan = $request->query('bulan', $bulanDefault);
-        if (! array_key_exists($bulan, $daftarBulan)) {
-            $bulan = $bulanDefault;
-        }
-        $tahun = $request->query('tahun', $tahunDefault);
-        if (! in_array($tahun, $daftarTahun)) {
-            $tahun = $tahunDefault;
-        }
-        $balitaDipilih = $request->query('balita', 'semua');
+        $daftarBalita = Toddler::orderBy('name')->get();
 
-        // Kunci periode: "2026-10" untuk satu bulan, "2026" untuk semua bulan
-        $kunci = $bulan === 'semua' ? $tahun : $tahun . '-' . $bulan;
+        // Daftar tahun diambil dari data yang ada, ditambah tahun berjalan (terbaru di atas)
+        $daftarTahun = collect()
+            ->merge(Examination::selectRaw('YEAR(examination_date) as y')->distinct()->pluck('y'))
+            ->merge(Immunization::selectRaw('YEAR(immunization_date) as y')->distinct()->pluck('y'))
+            ->merge(Schedule::selectRaw('YEAR(activity_date) as y')->distinct()->pluck('y'))
+            ->push(now()->year)
+            ->map(fn ($y) => (string) $y)
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        // Validasi pilihan filter, kalau tidak valid pakai bawaan
+        $bulan = (string) $request->query('bulan', now()->format('m'));
+        if (! array_key_exists($bulan, $daftarBulan)) {
+            $bulan = now()->format('m');
+        }
+
+        $tahun = (string) $request->query('tahun', (string) now()->year);
+        if (! $daftarTahun->contains($tahun)) {
+            $tahun = (string) now()->year;
+        }
+
+        $balitaDipilih = (string) $request->query('balita', 'semua');
+        if ($balitaDipilih !== 'semua' && ! $daftarBalita->contains('id', (int) $balitaDipilih)) {
+            $balitaDipilih = 'semua';
+        }
+
         $periode = ($bulan === 'semua' ? 'Semua bulan' : $daftarBulan[$bulan]) . ' ' . $tahun;
+        $namaBalitaDipilih = $balitaDipilih === 'semua'
+            ? 'Semua balita'
+            : $daftarBalita->firstWhere('id', (int) $balitaDipilih)->name;
 
         // Pemeriksaan: semua data pada periode terpilih
-        $pemeriksaan = array_filter(DummyData::pemeriksaan(), function ($p) use ($kunci, $balitaDipilih) {
-            return str_starts_with($p['tanggal'], $kunci)
-                && ($balitaDipilih === 'semua' || $p['balita'] === $balitaDipilih);
-        });
+        $pemeriksaan = Examination::with('toddler')
+            ->whereYear('examination_date', $tahun)
+            ->when($bulan !== 'semua', fn ($q) => $q->whereMonth('examination_date', (int) $bulan))
+            ->when($balitaDipilih !== 'semua', fn ($q) => $q->where('toddler_id', (int) $balitaDipilih))
+            ->orderBy('examination_date')
+            ->orderBy('id')
+            ->get();
 
         // Imunisasi: hanya yang sudah Selesai
-        $imunisasi = array_filter(DummyData::imunisasi(), function ($i) use ($kunci, $balitaDipilih) {
-            return $i['status'] === 'Selesai'
-                && str_starts_with($i['tanggal'], $kunci)
-                && ($balitaDipilih === 'semua' || $i['balita'] === $balitaDipilih);
-        });
+        $imunisasi = Immunization::with('toddler')
+            ->where('status', 'Selesai')
+            ->whereYear('immunization_date', $tahun)
+            ->when($bulan !== 'semua', fn ($q) => $q->whereMonth('immunization_date', (int) $bulan))
+            ->when($balitaDipilih !== 'semua', fn ($q) => $q->where('toddler_id', (int) $balitaDipilih))
+            ->orderBy('immunization_date')
+            ->orderBy('id')
+            ->get();
 
         // Kegiatan posyandu: hanya yang sudah Selesai
-        $kegiatan = array_filter(DummyData::jadwal(), function ($j) use ($kunci) {
-            return $j['status'] === 'Selesai' && str_starts_with($j['tanggal'], $kunci);
-        });
+        $kegiatan = Schedule::where('status', 'Selesai')
+            ->whereYear('activity_date', $tahun)
+            ->when($bulan !== 'semua', fn ($q) => $q->whereMonth('activity_date', (int) $bulan))
+            ->orderBy('activity_date')
+            ->orderBy('id')
+            ->get();
 
         return view('kader.laporan.index', [
-            'tab'           => $tab,
-            'judulCetak'    => $judulTab[$tab],
-            'periode'       => $periode,
-            'daftarBulan'   => $daftarBulan,
-            'daftarTahun'   => $daftarTahun,
-            'daftarBalita'  => DummyData::balita(),
-            'bulan'         => $bulan,
-            'tahun'         => $tahun,
-            'balitaDipilih' => $balitaDipilih,
-            'pemeriksaan'   => $pemeriksaan,
-            'imunisasi'     => $imunisasi,
-            'kegiatan'      => $kegiatan,
-            'jumlah'        => [
-                'pemeriksaan' => count($pemeriksaan),
-                'imunisasi'   => count($imunisasi),
-                'kegiatan'    => count($kegiatan),
+            'tab'               => $tab,
+            'judulCetak'        => $judulTab[$tab],
+            'periode'           => $periode,
+            'daftarBulan'       => $daftarBulan,
+            'daftarTahun'       => $daftarTahun,
+            'daftarBalita'      => $daftarBalita,
+            'bulan'             => $bulan,
+            'tahun'             => $tahun,
+            'balitaDipilih'     => $balitaDipilih,
+            'namaBalitaDipilih' => $namaBalitaDipilih,
+            'pemeriksaan'       => $pemeriksaan,
+            'imunisasi'         => $imunisasi,
+            'kegiatan'          => $kegiatan,
+            'jumlah'            => [
+                'pemeriksaan' => $pemeriksaan->count(),
+                'imunisasi'   => $imunisasi->count(),
+                'kegiatan'    => $kegiatan->count(),
             ],
         ]);
     }

@@ -2,34 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\DummyData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrangTuaController extends Controller
 {
-    // Riwayat pemeriksaan anak dari orang tua yang login (sementara: balita pertama).
+    // Riwayat pemeriksaan anak dari orang tua yang sedang login.
     public function riwayat(Request $request)
     {
-        $anak = DummyData::balita()[0];
-
-        $semua = collect(DummyData::pemeriksaan())->where('balita', $anak['nama']);
+        $anak = Auth::user()->toddler;
+        abort_if(is_null($anak), 404, 'Akun ini belum terhubung dengan data balita.');
 
         // Daftar tahun diambil dari data milik anak ini (terbaru di atas)
-        $daftarTahun = $semua
-            ->map(fn ($p) => substr($p['tanggal'], 0, 4))
-            ->unique()
-            ->sortDesc()
-            ->values();
+        $daftarTahun = $anak->examinations()
+            ->selectRaw('YEAR(examination_date) as y')
+            ->distinct()
+            ->orderByDesc('y')
+            ->pluck('y')
+            ->map(fn ($y) => (string) $y);
 
         // Validasi pilihan filter, kalau tidak valid tampilkan semua tahun
-        $tahun = $request->query('tahun', 'semua');
+        $tahun = (string) $request->query('tahun', 'semua');
         if ($tahun !== 'semua' && ! $daftarTahun->contains($tahun)) {
             $tahun = 'semua';
         }
 
-        $riwayat = $semua
-            ->filter(fn ($p) => $tahun === 'semua' || str_starts_with($p['tanggal'], $tahun))
-            ->sortByDesc('tanggal');
+        $riwayat = $anak->examinations()
+            ->when($tahun !== 'semua', fn ($q) => $q->whereYear('examination_date', (int) $tahun))
+            ->orderByDesc('examination_date')
+            ->get();
 
         return view('ortu.riwayat', compact('anak', 'riwayat', 'daftarTahun', 'tahun'));
     }

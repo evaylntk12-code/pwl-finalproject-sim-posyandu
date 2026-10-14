@@ -21,10 +21,10 @@
     <dl class="info cetak-info">
         <dt>Periode</dt><dd>: {{ $periode }}</dd>
         @if ($tab !== 'kegiatan')
-            <dt>Balita</dt><dd>: {{ $balitaDipilih === 'semua' ? 'Semua balita' : $balitaDipilih }}</dd>
+            <dt>Balita</dt><dd>: {{ $namaBalitaDipilih }}</dd>
         @endif
         <dt>Dicetak pada</dt><dd>: {{ now()->format('d-m-Y H:i') }}</dd>
-        <dt>Dicetak oleh</dt><dd>: Nama Kader</dd>
+        <dt>Dicetak oleh</dt><dd>: {{ auth()->user()->name }}</dd>
     </dl>
 </div>
 
@@ -52,7 +52,7 @@
             <select id="balita" name="balita">
                 <option value="semua">Semua balita</option>
                 @foreach ($daftarBalita as $b)
-                    <option value="{{ $b['nama'] }}" @selected($balitaDipilih === $b['nama'])>{{ $b['nama'] }}</option>
+                    <option value="{{ $b->id }}" @selected($balitaDipilih === (string) $b->id)>{{ $b->name }}</option>
                 @endforeach
             </select></div>
     @endif
@@ -88,14 +88,14 @@
             @forelse ($pemeriksaan as $p)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $p['balita'] }}</td>
-                    <td>{{ date('d-m-Y', strtotime($p['tanggal'])) }}</td>
-                    <td>{{ $p['bb'] }}</td>
-                    <td>{{ $p['tb'] }}</td>
-                    <td>{{ $p['lk'] }}</td>
-                    <td>{{ $p['ll'] }}</td>
-                    <td>@include('partials.badge-gizi', ['status' => $p['status_gizi']])</td>
-                    <td>{{ $p['catatan'] }}</td>
+                    <td>{{ $p->toddler->name }}</td>
+                    <td>{{ $p->examination_date->format('d-m-Y') }}</td>
+                    <td>{{ $p->weight }}</td>
+                    <td>{{ $p->height }}</td>
+                    <td>{{ $p->head_circumference }}</td>
+                    <td>{{ $p->arm_circumference }}</td>
+                    <td>@include('partials.badge-gizi', ['status' => $p->nutrition_status])</td>
+                    <td>{{ $p->notes ?: '-' }}</td>
                 </tr>
             @empty
                 <tr>
@@ -123,10 +123,10 @@
             @forelse ($imunisasi as $i)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $i['balita'] }}</td>
-                    <td>{{ $i['jenis'] }}</td>
-                    <td>{{ date('d-m-Y', strtotime($i['tanggal'])) }}</td>
-                    <td>{{ date('d-m-Y', strtotime($i['berikutnya'])) }}</td>
+                    <td>{{ $i->toddler->name }}</td>
+                    <td>{{ $i->vaccine_type }}</td>
+                    <td>{{ $i->immunization_date->format('d-m-Y') }}</td>
+                    <td>{{ $i->next_date?->format('d-m-Y') ?? '-' }}</td>
                 </tr>
             @empty
                 <tr>
@@ -154,9 +154,9 @@
             @forelse ($kegiatan as $j)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ date('d-m-Y', strtotime($j['tanggal'])) }}</td>
-                    <td>{{ $j['waktu'] }}</td>
-                    <td>{{ $j['keterangan'] }}</td>
+                    <td>{{ $j->activity_date->format('d-m-Y') }}</td>
+                    <td>{{ $j->time_range }}</td>
+                    <td>{{ $j->description }}</td>
                 </tr>
             @empty
                 <tr>

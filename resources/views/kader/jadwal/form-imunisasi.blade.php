@@ -11,15 +11,15 @@
         <select id="balita">
             <option value="">Pilih...</option>
             @foreach ($daftarBalita as $b)
-                <option @selected(($imunisasi['balita'] ?? '') === $b['nama'])>{{ $b['nama'] }}</option>
+                <option value="{{ $b->id }}" @selected(($imunisasi?->toddler_id) === $b->id)>{{ $b->name }}</option>
             @endforeach
         </select></div>
     <div class="fg"><label for="jenis">Jenis imunisasi</label>
-        <input type="text" id="jenis" value="{{ $imunisasi['jenis'] ?? '' }}"></div>
+        <input type="text" id="jenis" value="{{ $imunisasi?->vaccine_type }}"></div>
     <div class="fg"><label for="tgl">Tanggal imunisasi</label>
-        <input type="date" id="tgl" value="{{ $imunisasi['tanggal'] ?? '' }}"></div>
+        <input type="date" id="tgl" value="{{ $imunisasi?->immunization_date->format('Y-m-d') }}"></div>
     <div class="fg"><label for="next">Jadwal imunisasi berikutnya</label>
-        <input type="date" id="next" value="{{ $imunisasi['berikutnya'] ?? '' }}"></div>
+        <input type="date" id="next" value="{{ $imunisasi?->next_date?->format('Y-m-d') }}"></div>
     <p class="hint"><i class="fa-solid fa-circle-info"></i> Kalau jadwal imunisasi berikutnya berubah, cukup ubah tanggal ini.</p>
 </fieldset>
 

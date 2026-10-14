@@ -25,13 +25,13 @@
     </div>
 </div>
 
-{{-- Jadwal dan imunisasi --}}
+{{-- Jadwal dan imunisasi (dua kartu ini harus berada di dalam div.grid) --}}
 <div class="grid">
     <div class="card jadwal-card">
         <span><i class="fa-solid fa-calendar-days"></i> Jadwal Posyandu Terdekat</span>
         @if ($jadwal)
-            <h3>{{ date('d-m-Y', strtotime($jadwal['tanggal'])) }}</h3>
-            {{ $jadwal['waktu'] }} WIB · {{ $jadwal['keterangan'] }}
+            <h3>{{ $jadwal->activity_date->format('d-m-Y') }}</h3>
+            {{ $jadwal->time_range }} WIB · {{ $jadwal->description }}
         @else
             <h3>Belum ada jadwal</h3>
             Tambahkan jadwal di menu Jadwal & Imunisasi.
@@ -40,11 +40,11 @@
 
     <div class="card pink-card">
         <span><i class="fa-solid fa-syringe"></i> Imunisasi Terjadwal</span>
-        @if (count($imunisasiTerjadwal) > 0)
-            <h3>{{ count($imunisasiTerjadwal) }} balita</h3>
+        @if ($imunisasiTerjadwal->count() > 0)
+            <h3>{{ $imunisasiTerjadwal->count() }} balita</h3>
             <ul class="daftar">
                 @foreach ($imunisasiTerjadwal as $i)
-                    <li>{{ $i['balita'] }} · {{ $i['jenis'] }}</li>
+                    <li>{{ $i->toddler->name }} · {{ $i->vaccine_type }}</li>
                 @endforeach
             </ul>
         @else

@@ -29,7 +29,7 @@
 @endif
 
 <div class="bar">
-    <span class="info-bulan"><i class="fa-solid fa-calendar-days"></i> Bulan berjalan: Oktober 2026</span>
+    <span class="info-bulan"><i class="fa-solid fa-calendar-days"></i> Bulan berjalan: {{ $bulanLabel }}</span>
     <a class="btn" href="{{ route('kader.pemeriksaan.create') }}">+ Tambah Pemeriksaan</a>
 </div>
 
@@ -38,8 +38,7 @@
         <thead>
             <tr>
                 <th>No</th><th>Nama Balita</th><th>Tanggal</th>
-                <th>BB (kg)</th><th>TB (cm)</th>
-                <th>L. Kepala (cm)</th><th>L. Lengan (cm)</th>
+                <th>BB (kg)</th><th>TB (cm)</th><th>L. Kepala (cm)</th><th>L. Lengan (cm)</th>
                 <th>Status Gizi</th><th>Catatan</th><th>Aksi</th>
             </tr>
         </thead>
@@ -47,23 +46,23 @@
             @forelse ($pemeriksaan as $p)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $p['balita'] }}</td>
-                    <td>{{ date('d-m-Y', strtotime($p['tanggal'])) }}</td>
-                    <td>{{ $p['bb'] }}</td>
-                    <td>{{ $p['tb'] }}</td>
-                    <td>{{ $p['lk'] }}</td>
-                    <td>{{ $p['ll'] }}</td>
-                    <td>@include('partials.badge-gizi', ['status' => $p['status_gizi']])</td>
-                    <td>{{ $p['catatan'] }}</td>
+                    <td>{{ $p->toddler->name }}</td>
+                    <td>{{ $p->examination_date->format('d-m-Y') }}</td>
+                    <td>{{ $p->weight }}</td>
+                    <td>{{ $p->height }}</td>
+                    <td>{{ $p->head_circumference }}</td>
+                    <td>{{ $p->arm_circumference }}</td>
+                    <td>@include('partials.badge-gizi', ['status' => $p->nutrition_status])</td>
+                    <td>{{ $p->notes ?: '-' }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.pemeriksaan.edit', $p['id']) }}"
-                           title="Ubah data" aria-label="Ubah pemeriksaan {{ $p['balita'] }}">
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.pemeriksaan.edit', $p->id) }}"
+                           title="Ubah data" aria-label="Ubah pemeriksaan {{ $p->toddler->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
                         {{-- Tahap UI: tombol Hapus masih placeholder. Diganti form DELETE pada pertemuan CRUD. --}}
                         <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus pemeriksaan {{ $p['balita'] }}">
+                           title="Hapus data" aria-label="Hapus pemeriksaan {{ $p->toddler->name }}">
                             <i class="fa-solid fa-trash"></i>
                         </a>
                     </td>
@@ -74,7 +73,7 @@
                         @include('partials.empty', [
                             'ikon'  => 'fa-weight-scale',
                             'judul' => 'Belum ada pemeriksaan bulan ini',
-                            'teks'  => 'Klik tombol + Tambah Pemeriksaan di atas untuk mencatat pemeriksaan pertama bulan Oktober 2026.',
+                            'teks'  => 'Klik tombol + Tambah Pemeriksaan di atas untuk mencatat pemeriksaan pertama bulan ' . $bulanLabel . '.',
                         ])
                     </td>
                 </tr>

@@ -9,17 +9,17 @@
     <details class="dd">
         <summary>
             <i class="fa-solid fa-circle-user"></i>
-            {{ $isOrtu ? 'Nama Orang Tua' : 'Nama Kader' }}
+            {{ auth()->user()->name }}
             <i class="fa-solid fa-chevron-down caret"></i>
         </summary>
         <div class="dd-menu">
             <a href="{{ route($isOrtu ? 'ortu.sandi' : 'kader.sandi') }}">
                 <i class="fa-solid fa-key"></i> Ganti Kata Sandi
             </a>
-            {{-- Tahap UI: Logout masih link. Diganti form POST pada pertemuan authentication. --}}
-            <a href="{{ route('login') }}">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </form>
         </div>
     </details>
 </header>
