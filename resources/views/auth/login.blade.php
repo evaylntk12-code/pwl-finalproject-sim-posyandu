@@ -17,7 +17,7 @@
         <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email Anda">
 
         <label for="password">Kata Sandi</label>
-        <input type="password" id="password" name="password" placeholder="Masukkan kata sandi">
+        @include('partials.input-sandi', ['nama' => 'password', 'placeholder' => 'Masukkan kata sandi', 'auto' => 'current-password'])
 
         <div class="lupa"><a href="{{ route('lupa-sandi') }}">Lupa kata sandi?</a></div>
 

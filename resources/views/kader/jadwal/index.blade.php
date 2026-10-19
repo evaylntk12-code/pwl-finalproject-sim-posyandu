@@ -7,7 +7,7 @@
 
 <div class="bar">
     <a class="btn" href="{{ route('kader.jadwal.create') }}">+ Tambah Jadwal</a>
-    <a class="btn btn-pink" href="{{ route('kader.jadwal.imunisasi.create') }}">+ Catat Imunisasi</a>
+    <a class="btn btn-pink" href="{{ route('kader.imunisasi.create') }}">+ Catat Imunisasi</a>
 </div>
 
 {{-- ===== Daftar Jadwal Kegiatan ===== --}}
@@ -25,7 +25,7 @@
                     <td>{{ $j->time_range }}</td>
                     <td>{{ $j->description }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.edit', $j->id) }}"
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.edit', $j) }}"
                            title="Ubah data" aria-label="Ubah jadwal {{ $j->description }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
@@ -35,11 +35,15 @@
                             <i class="fa-solid fa-circle-check"></i> Selesai
                         </button>
 
-                        {{-- Tahap UI: tombol Hapus masih placeholder. Diganti form DELETE pada pertemuan CRUD. --}}
-                        <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus jadwal {{ $j->description }}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" action="{{ route('kader.jadwal.destroy', $j) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-ikon" title="Hapus data"
+                                    aria-label="Hapus jadwal {{ $j->description }}"
+                                    onclick="return confirm('Hapus jadwal kegiatan ini?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @empty
@@ -76,7 +80,7 @@
                     <td>{{ $i->immunization_date->format('d-m-Y') }}</td>
                     <td>{{ $i->next_date?->format('d-m-Y') ?? '-' }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.jadwal.imunisasi.edit', $i->id) }}"
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.imunisasi.edit', $i) }}"
                            title="Ubah data" aria-label="Ubah imunisasi {{ $i->toddler->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
@@ -86,10 +90,15 @@
                             <i class="fa-solid fa-circle-check"></i> Selesai
                         </button>
 
-                        <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus imunisasi {{ $i->toddler->name }}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" action="{{ route('kader.imunisasi.destroy', $i) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-ikon" title="Hapus data"
+                                    aria-label="Hapus imunisasi {{ $i->toddler->name }}"
+                                    onclick="return confirm('Hapus catatan imunisasi ini?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @empty
@@ -122,8 +131,11 @@
         </div>
         <div class="modal-foot">
             <form method="dialog"><button class="btn btn-outline">Batal</button></form>
-            {{-- Tahap UI: tombol ini masih link. Diganti form PATCH (status = Selesai) pada pertemuan CRUD. --}}
-            <a class="btn" href="{{ route('kader.jadwal.index') }}">Ya, Selesai</a>
+            <form method="POST" action="{{ route('kader.jadwal.selesai', $j) }}">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn">Ya, Selesai</button>
+            </form>
         </div>
     </dialog>
 @endforeach
@@ -139,7 +151,11 @@
         </div>
         <div class="modal-foot">
             <form method="dialog"><button class="btn btn-outline">Batal</button></form>
-            <a class="btn" href="{{ route('kader.jadwal.index') }}">Ya, Selesai</a>
+            <form method="POST" action="{{ route('kader.imunisasi.selesai', $i) }}">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn">Ya, Selesai</button>
+            </form>
         </div>
     </dialog>
 @endforeach

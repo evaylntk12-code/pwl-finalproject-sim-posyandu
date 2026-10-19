@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\CekRole::class,
+            'sandi.diganti' => \App\Http\Middleware\WajibGantiSandi::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

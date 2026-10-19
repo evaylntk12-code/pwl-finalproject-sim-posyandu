@@ -20,11 +20,19 @@
         @endif
 
         <main>
+            @if (session('success'))
+                <div class="alert alert-sukses"><i class="fa-solid fa-circle-check"></i> {{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}</div>
+            @endif
+
             @yield('content')
         </main>
     </div>
 
     @include('partials.footer')
 
+<script src="{{ asset('js/sandi.js') }}"></script>
 </body>
 </html>

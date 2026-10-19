@@ -55,16 +55,20 @@
                     <td>@include('partials.badge-gizi', ['status' => $p->nutrition_status])</td>
                     <td>{{ $p->notes ?: '-' }}</td>
                     <td class="aksi">
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.pemeriksaan.edit', $p->id) }}"
-                           title="Ubah data" aria-label="Ubah pemeriksaan {{ $p->toddler->name }}">
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.pemeriksaan.edit', $p) }}"
+                        title="Ubah data" aria-label="Ubah pemeriksaan {{ $p->toddler->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
-                        {{-- Tahap UI: tombol Hapus masih placeholder. Diganti form DELETE pada pertemuan CRUD. --}}
-                        <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus pemeriksaan {{ $p->toddler->name }}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" action="{{ route('kader.pemeriksaan.destroy', $p) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-ikon" title="Hapus data"
+                                    aria-label="Hapus pemeriksaan {{ $p->toddler->name }}"
+                                    onclick="return confirm('Hapus data pemeriksaan ini?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @empty

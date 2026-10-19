@@ -4,6 +4,7 @@ use App\Http\Controllers\AkunController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BalitaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImunisasiController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\OrangTuaController;
@@ -17,35 +18,38 @@ Route::post('/login', [AuthController::class, 'proses'])->name('login.proses');
 Route::get('/lupa-sandi', [AuthController::class, 'lupa'])->name('lupa-sandi');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// ---------- Area Kader Posyandu (wajib login sebagai kader) ----------
-Route::middleware(['auth', 'role:kader'])->prefix('kader')->name('kader.')->group(function () {
+// ---------- Area Kader Posyandu ----------
+Route::middleware(['auth', 'role:kader', 'sandi.diganti'])->prefix('kader')->name('kader.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'kader'])->name('dashboard');
 
     // Data Balita & Wali
-    Route::get('/balita', [BalitaController::class, 'index'])->name('balita.index');
-    Route::get('/balita/tambah', [BalitaController::class, 'create'])->name('balita.create');
-    Route::get('/balita/{id}/ubah', [BalitaController::class, 'edit'])->name('balita.edit');
+    Route::resource('balita', BalitaController::class)
+        ->except('show')
+        ->parameters(['balita' => 'balita']);
+    Route::put('balita/{balita}/reset-sandi', [BalitaController::class, 'resetSandi'])->name('balita.reset-sandi');
 
     // Pemeriksaan
-    Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])->name('pemeriksaan.index');
-    Route::get('/pemeriksaan/tambah', [PemeriksaanController::class, 'create'])->name('pemeriksaan.create');
-    Route::get('/pemeriksaan/{id}/ubah', [PemeriksaanController::class, 'edit'])->name('pemeriksaan.edit');
+    Route::resource('pemeriksaan', PemeriksaanController::class)->except('show');
 
-    // Jadwal & Imunisasi
-    Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal.index');
-    Route::get('/jadwal/tambah', [JadwalController::class, 'createJadwal'])->name('jadwal.create');
-    Route::get('/jadwal/{id}/ubah', [JadwalController::class, 'editJadwal'])->name('jadwal.edit');
-    Route::get('/jadwal/imunisasi/tambah', [JadwalController::class, 'createImunisasi'])->name('jadwal.imunisasi.create');
-    Route::get('/jadwal/imunisasi/{id}/ubah', [JadwalController::class, 'editImunisasi'])->name('jadwal.imunisasi.edit');
+    // Jadwal Kegiatan dan Imunisasi
+    Route::resource('jadwal', JadwalController::class)->except('show');
+    Route::patch('jadwal/{jadwal}/selesai', [JadwalController::class, 'selesai'])->name('jadwal.selesai');
 
-    // Laporan & akun
+    Route::resource('imunisasi', ImunisasiController::class)
+        ->only(['create', 'store', 'edit', 'update', 'destroy'])
+        ->parameters(['imunisasi' => 'imunisasi']);
+    Route::patch('imunisasi/{imunisasi}/selesai', [ImunisasiController::class, 'selesai'])->name('imunisasi.selesai');
+
+    // Laporan dan akun
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/ganti-sandi', [AkunController::class, 'sandi'])->name('sandi');
+    Route::put('/ganti-sandi', [AkunController::class, 'perbarui'])->name('sandi.perbarui');
 });
 
-// ---------- Area Orang Tua (wajib login sebagai orang tua) ----------
-Route::middleware(['auth', 'role:orang_tua'])->prefix('orang-tua')->name('ortu.')->group(function () {
+// ---------- Area Orang Tua ----------
+Route::middleware(['auth', 'role:orang_tua', 'sandi.diganti'])->prefix('orang-tua')->name('ortu.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'ortu'])->name('dashboard');
     Route::get('/riwayat', [OrangTuaController::class, 'riwayat'])->name('riwayat');
     Route::get('/ganti-sandi', [AkunController::class, 'sandi'])->name('sandi');
+    Route::put('/ganti-sandi', [AkunController::class, 'perbarui'])->name('sandi.perbarui');
 });

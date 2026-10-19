@@ -41,20 +41,29 @@
                             <i class="fa-solid fa-eye"></i>
                         </button>
 
-                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.balita.edit', $b->id) }}"
-                           title="Ubah data" aria-label="Ubah data {{ $b->name }}">
+                        <a class="btn btn-outline btn-ikon" href="{{ route('kader.balita.edit', $b) }}"
+                        title="Ubah data" aria-label="Ubah data {{ $b->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
 
-                        {{-- Tahap UI: dua tombol di bawah masih placeholder. Diganti form POST/DELETE pada pertemuan CRUD. --}}
-                        <a class="btn btn-outline btn-sm btn-reset" href="#">
-                            <i class="fa-solid fa-key"></i> Reset Sandi
-                        </a>
+                        <form method="POST" action="{{ route('kader.balita.reset-sandi', $b) }}">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-outline btn-sm btn-reset"
+                                    onclick="return confirm('Reset kata sandi akun orang tua ini?')">
+                                <i class="fa-solid fa-key"></i> Reset Sandi
+                            </button>
+                        </form>
 
-                        <a class="btn btn-danger btn-ikon" href="#"
-                           title="Hapus data" aria-label="Hapus data {{ $b->name }}">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" action="{{ route('kader.balita.destroy', $b) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-ikon" title="Hapus data"
+                                    aria-label="Hapus data {{ $b->name }}"
+                                    onclick="return confirm('Hapus data balita beserta akun orang tuanya? Seluruh riwayat pemeriksaan dan imunisasinya juga ikut terhapus.')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @empty
@@ -103,4 +112,22 @@
         </div>
     </dialog>
 @endforeach
+
+{{-- Popup kata sandi sementara: hanya muncul sekali setelah Reset Sandi --}}
+@if (session('sandi_sementara'))
+    <dialog id="sandi-sementara">
+        <div class="modal-head">
+            <h3><i class="fa-solid fa-key"></i> Kata sandi sementara</h3>
+        </div>
+        <div class="modal-body">
+            <p class="konfirmasi">Akun <b>{{ session('sandi_untuk') }}</b>. Berikan kata sandi ini kepada orang tua.
+                Kata sandi hanya tampil sekali dan harus diganti saat masuk pertama.</p>
+            <div class="sandi-kotak">{{ session('sandi_sementara') }}</div>
+        </div>
+        <div class="modal-foot">
+            <form method="dialog"><button class="btn">Selesai</button></form>
+        </div>
+    </dialog>
+    <script>document.getElementById('sandi-sementara').showModal();</script>
+@endif
 @endsection
