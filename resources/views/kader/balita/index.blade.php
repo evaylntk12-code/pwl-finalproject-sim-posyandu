@@ -5,16 +5,44 @@
 @section('content')
 <h2 class="judul">Daftar Balita</h2>
 
-<div class="bar">
-    <form method="GET" action="{{ route('kader.balita.index') }}" class="cari">
-        <div class="fg">
-            <label for="q">Cari balita</label>
-            <input type="text" id="q" name="q" value="{{ request('q') }}" placeholder="Nama balita...">
-        </div>
-        <button class="btn" type="submit">Cari</button>
-    </form>
-    <a class="btn" href="{{ route('kader.balita.create') }}">+ Tambah Balita</a>
-</div>
+<div class="bar"> 
+    <form method="GET" action="{{ route('kader.balita.index') }}" class="cari"> 
+        <div class="fg fg-cari"> 
+            <label for="q">Cari</label> 
+            <input type="text" id="q" name="q" value="{{ $q }}" placeholder="Nama balita / wali / email"> 
+        </div> 
+        <div class="fg"> 
+            <label for="gender">Jenis kelamin</label> 
+            <select id="gender" name="gender"> 
+                <option value="">Semua</option> 
+                <option value="L" @selected($gender === 'L')>Laki-laki</option> 
+                <option value="P" @selected($gender === 'P')>Perempuan</option> 
+            </select> 
+        </div> 
+        <div class="fg"> 
+            <label for="urut">Urutkan</label> 
+            <select id="urut" name="urut"> 
+                @foreach ($opsiUrut as $kunci => $opsi) 
+                    <option value="{{ $kunci }}" @selected($urut === $kunci)>{{ $opsi[2] }}</option> 
+                @endforeach 
+            </select> 
+        </div> 
+        <button class="btn" type="submit">Terapkan</button> 
+        <a class="btn btn-outline" href="{{ route('kader.balita.index') }}">Reset</a> 
+    </form> 
+    <a class="btn" href="{{ route('kader.balita.create') }}">+ Tambah Balita</a> 
+</div> 
+ 
+<p class="hint"> 
+    @if ($balita->total() > 0) 
+        Menampilkan {{ $balita->firstItem() }}-{{ $balita->lastItem() }} dari {{ $balita->total() }} balita. 
+    @else 
+        Tidak ada data yang ditampilkan. 
+    @endif 
+    @if ($q !== '') 
+        Hasil pencarian: <strong>{{ $q }}</strong> 
+    @endif 
+</p> 
 
 <div class="tb">
     <table>
@@ -27,7 +55,7 @@
         <tbody>
             @forelse ($balita as $b)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $balita->firstItem() + $loop->index }}</td>
                     <td>{{ $b->name }}</td>
                     <td>{{ $b->birth_date->format('d-m-Y') }}</td>
                     <td>{{ $b->usia }} bulan</td>
@@ -69,17 +97,29 @@
             @empty
                 <tr>
                     <td colspan="8">
-                        @include('partials.empty', [
-                            'ikon'  => 'fa-baby',
+                        @if($q!=="||$gender!==")
+                            @include('partials.empty',[
+                            'ikon' => 'fa-magnifying-glass',
+                            'judul' => 'Data tidak ditemukan',
+                            'teks' => 'Tidak ada balita yang cocok dengan pencarian atau filter. Coba kata kunci lain, atau reset filter.',
+                            'rute' => route('kader.balita.index'),
+                            'tombol' => 'Reset Filter',
+                            ])
+                        @else
+                            @include('partials.empty',[
+                            'ikon' => 'fa-baby',
                             'judul' => 'Belum ada data balita',
-                            'teks'  => 'Klik tombol + Tambah Balita di atas untuk menambahkan balita pertama beserta akun orang tuanya.',
-                        ])
+                            'teks' => 'Klik tombol + Tambah Balita di atas untuk menambahkan balita pertama beserta akun orang tuanya.',
+                            ])
+                        @endif
                     </td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 </div>
+
+{{ $balita->links('partials.pagination') }}
 
 {{-- Popup detail: satu per balita --}}
 @foreach ($balita as $b)
