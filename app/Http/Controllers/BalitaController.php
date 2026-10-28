@@ -11,19 +11,49 @@ use Illuminate\Validation\Rule;
 
 class BalitaController extends Controller
 {
-    // READ: daftar balita (urut abjad) dengan pencarian nama
+        // READ: daftar balita dengan pencarian, filter, pengurutan, dan pagination
     public function index(Request $request)
     {
-        $q = $request->query('q');
+        // Pilihan urutan (whitelist). Kunci = nilai parameter ?urut=, isi = [kolom, arah, label].
+        // Kolom tidak diambil langsung dari request, jadi tidak bisa disisipi nama kolom sembarangan.
+        $opsiUrut = [
+            'nama_asc'   => ['name', 'asc', 'Nama A-Z'],
+            'nama_desc'  => ['name', 'desc', 'Nama Z-A'],
+            'lahir_desc' => ['birth_date', 'desc', 'Termuda dulu'],
+            'lahir_asc'  => ['birth_date', 'asc', 'Tertua dulu'],
+            'terbaru'    => ['created_at', 'desc', 'Terakhir ditambahkan'],
+        ];
 
-        // with('user') mengambil data wali sekaligus (menghindari query berulang per baris)
-        $balita = Toddler::with('user')
-            ->when($q, fn ($query) => $query->where('name', 'like', '%' . $q . '%'))
-            ->orderBy('name')
-            ->get();
+        $q      = trim((string) $request->query('q', ''));
+        $gender = (string) $request->query('gender', '');
+        $urut   = (string) $request->query('urut', 'nama_asc');
 
-        return view('kader.balita.index', compact('balita'));
+        if (! isset($opsiUrut[$urut])) {
+            $urut = 'nama_asc';
+        }
+        [$kolom, $arah] = $opsiUrut[$urut];
+
+        // Query dibangun bertahap; kondisi baru ditambahkan jika inputnya terisi
+        $balita = Toddler::with('user') // eager loading: data wali diambil sekaligus
+            ->when($q !== '', function ($query) use ($q) {
+                // Kelompokkan kondisi OR dalam satu closure agar tidak bentrok dengan filter lain
+                $query->where(function ($w) use ($q) {
+                    $w->where('name', 'like', "%{$q}%")
+                        ->orWhereHas('user', function ($u) use ($q) {
+                            $u->where('name', 'like', "%{$q}%")
+                                ->orWhere('email', 'like', "%{$q}%");
+                        });
+                });
+            })
+            ->when(in_array($gender, ['L', 'P'], true), fn ($query) => $query->where('gender', $gender))
+            ->orderBy($kolom, $arah)
+            ->orderBy('id')
+            ->paginate(10)
+            ->withQueryString(); // search, filter, dan urutan tetap terbawa saat pindah halaman
+
+        return view('kader.balita.index', compact('balita', 'opsiUrut', 'urut', 'q', 'gender'));
     }
+
 
     // CREATE: hanya menampilkan form
     public function create()
