@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
                 'role'                 => 'orang_tua',
                 'phone'                => $hp,
                 'address'              => $alamat,
-                'must_change_password' => false, // demo; alur wajib ganti sandi dibuat belakangan
+                'must_change_password' => false, // demo; 
             ]);
         }
     }
