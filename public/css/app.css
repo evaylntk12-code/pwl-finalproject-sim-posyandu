@@ -251,3 +251,13 @@ body.auth{height:auto;min-height:100vh;overflow:auto;display:grid;place-items:ce
   th{background:#e5e5e5;color:#000}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* Form pencarian boleh turun baris di layar sempit; kolom cari sedikit lebih lebar */
+.cari{flex-wrap:wrap}
+.bar .fg-cari{max-width:260px}
+/* Pagination */
+.pagination{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 0 16px}
+.hal{display:inline-block;min-width:36px;padding:7px 12px;text-align:center;border:1.5px solid var(--bd);borderradius:10px;background:var(--cd);color:var(--tx);font-weight:700;text-decoration:none}
+a.hal:hover{background:var(--so)}
+.hal.aktif{background:var(--pr);border-color:var(--pr);color:#fff}
+.hal.nonaktif{background:var(--bg);color:var(--mu);cursor:default}
