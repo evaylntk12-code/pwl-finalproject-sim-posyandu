@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Examination;
 use App\Models\Toddler;
+use Closure;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -43,7 +45,13 @@ class PemeriksaanController extends Controller
             $this->atribut()
         );
 
-        Examination::create($validated);
+        // user_id = akun yang mencatat (jejak siapa yang menginput)
+        try {
+            Examination::create($validated + ['user_id' => $request->user()->id]);
+        } catch (UniqueConstraintViolationException) {
+            // Dua kader menyimpan data yang sama di detik yang sama: constraint database yang menahan
+            return $this->tolakGanda();
+        }
 
         return redirect()
             ->route('kader.pemeriksaan.index')
@@ -72,7 +80,11 @@ class PemeriksaanController extends Controller
             $this->atribut()
         );
 
-        $pemeriksaan->update($validated);
+        try {
+            $pemeriksaan->update($validated);
+        } catch (UniqueConstraintViolationException) {
+            return $this->tolakGanda();
+        }
 
         return redirect()
             ->route('kader.pemeriksaan.index')
@@ -103,6 +115,13 @@ class PemeriksaanController extends Controller
         );
     }
 
+    private function tolakGanda()
+    {
+        return back()->withInput()->withErrors([
+            'examination_date' => 'Balita ini sudah memiliki pemeriksaan pada tanggal tersebut.',
+        ]);
+    }
+
     private function aturan(Request $request, ?Examination $pemeriksaan = null): array
     {
         return [
@@ -113,10 +132,18 @@ class PemeriksaanController extends Controller
                 'after_or_equal:' . now()->startOfMonth()->toDateString(), // hanya bulan berjalan
                 'before_or_equal:today',                                    // tidak boleh tanggal depan
                 // Satu balita hanya boleh punya satu pemeriksaan per hari.
-                // ignore(): saat update, data yang sedang diedit tidak dihitung sebagai duplikat.
-                Rule::unique('examinations', 'examination_date')
-                    ->where('toddler_id', $request->input('toddler_id'))
-                    ->ignore($pemeriksaan?->id),
+                // whereDate dipakai agar pembandingan tanggal benar di MySQL.
+                // Saat update, data yang sedang diedit tidak dihitung sebagai duplikat.
+                function (string $atribut, mixed $nilai, Closure $gagal) use ($request, $pemeriksaan) {
+                    $ganda = Examination::where('toddler_id', $request->input('toddler_id'))
+                        ->whereDate('examination_date', $nilai)
+                        ->when($pemeriksaan, fn ($q) => $q->where('id', '!=', $pemeriksaan->id))
+                        ->exists();
+
+                    if ($ganda) {
+                        $gagal('Balita ini sudah memiliki pemeriksaan pada tanggal tersebut.');
+                    }
+                },
             ],
             'weight'             => ['required', 'numeric', 'between:1,40'],
             'height'             => ['required', 'numeric', 'between:30,130'],
@@ -140,7 +167,6 @@ class PemeriksaanController extends Controller
             'max'      => ':attribute maksimal :max karakter.',
             'examination_date.after_or_equal'  => 'Tanggal pemeriksaan hanya bisa di bulan berjalan.',
             'examination_date.before_or_equal' => 'Tanggal pemeriksaan tidak boleh lebih dari hari ini.',
-            'examination_date.unique'          => 'Balita ini sudah memiliki pemeriksaan pada tanggal tersebut.',
         ];
     }
 

@@ -4,9 +4,9 @@
 
 @section('content')
 @php
-    $ortu   = request()->routeIs('ortu.*');
-    $aksi   = $ortu ? route('ortu.sandi.perbarui') : route('kader.sandi.perbarui');
-    $batal  = $ortu ? route('ortu.dashboard') : route('kader.dashboard');
+    $area   = auth()->user()->areaPrefix(); // kader, bidan, atau ortu
+    $aksi   = route($area . '.sandi.perbarui');
+    $batal  = route($area . '.dashboard');
 
     // nama field => [label, atribut autocomplete]
     $kolom = [

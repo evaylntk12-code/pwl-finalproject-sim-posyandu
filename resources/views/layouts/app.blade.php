@@ -12,12 +12,9 @@
     @include('partials.navbar')
 
     <div class="wrap">
-        {{-- Sidebar menyesuaikan area: route ortu.* = Orang Tua, selain itu = Kader --}}
-        @if (request()->routeIs('ortu.*'))
-            @include('partials.sidebar-ortu')
-        @else
-            @include('partials.sidebar-kader')
-        @endif
+        {{-- Menu samping mengikuti role akun: sidebar-kader, sidebar-bidan, atau sidebar-ortu.
+             Ini hanya tampilan; keamanan sebenarnya ada di middleware route. --}}
+        @include('partials.sidebar-' . auth()->user()->areaPrefix())
 
         <main>
             @if (session('success'))

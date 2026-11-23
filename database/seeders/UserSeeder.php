@@ -10,12 +10,23 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Akun kader (dibuat lewat seeder). Kata sandi demo: "password"
+        // Akun bidan = akun puncak. Hanya dibuat lewat seeder, karena tidak ada
+        // role di atasnya yang bisa membuatnya. Kata sandi demo: "password"
         User::create([
-            'name'                 => 'Nama Kader',
+            'name'                 => 'Ajeng',
+            'email'                => 'bidan@email.com',
+            'password'             => Hash::make('password'),
+            'role'                 => User::ROLE_BIDAN,
+            'must_change_password' => false,
+        ]);
+
+        // Akun kader demo. Di pemakaian nyata, akun kader dibuat oleh bidan lewat menu Akun Kader.
+        // Kata sandi demo: "password"
+        User::create([
+            'name'                 => 'Rukayyah',
             'email'                => 'kader@email.com',
             'password'             => Hash::make('password'),
-            'role'                 => 'kader',
+            'role'                 => User::ROLE_KADER,
             'must_change_password' => false,
         ]);
 
@@ -31,10 +42,10 @@ class UserSeeder extends Seeder
                 'name'                 => $nama,
                 'email'                => $email,
                 'password'             => Hash::make('password'),
-                'role'                 => 'orang_tua',
+                'role'                 => User::ROLE_ORANG_TUA,
                 'phone'                => $hp,
                 'address'              => $alamat,
-                'must_change_password' => false, // demo; 
+                'must_change_password' => false,
             ]);
         }
     }

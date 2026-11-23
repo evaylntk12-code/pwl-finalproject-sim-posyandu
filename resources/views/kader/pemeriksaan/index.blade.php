@@ -3,7 +3,11 @@
 @section('title', 'Data Pemeriksaan')
 
 @section('content')
-@php $adaGambar = file_exists(public_path('img/acuan-gizi.png')); @endphp
+@php
+    $adaGambar = file_exists(public_path('img/acuan-gizi.png'));
+    $area  = auth()->user()->areaPrefix(); // kader atau bidan
+    $tulis = $area === 'kader';            // hanya kader yang boleh menambah/ubah/hapus
+@endphp
 
 <h2 class="judul">Data Pemeriksaan</h2>
 
@@ -30,7 +34,9 @@
 
 <div class="bar">
     <span class="info-bulan"><i class="fa-solid fa-calendar-days"></i> Bulan berjalan: {{ $bulanLabel }}</span>
-    <a class="btn" href="{{ route('kader.pemeriksaan.create') }}">+ Tambah Pemeriksaan</a>
+    @if ($tulis)
+        <a class="btn" href="{{ route('kader.pemeriksaan.create') }}">+ Tambah Pemeriksaan</a>
+    @endif
 </div>
 
 <div class="tb">
@@ -39,7 +45,7 @@
             <tr>
                 <th>No</th><th>Nama Balita</th><th>Tanggal</th>
                 <th>BB (kg)</th><th>TB (cm)</th><th>L. Kepala (cm)</th><th>L. Lengan (cm)</th>
-                <th>Status Gizi</th><th>Catatan</th><th>Aksi</th>
+                <th>Status Gizi</th><th>Catatan</th>@if ($tulis)<th>Aksi</th>@endif
             </tr>
         </thead>
         <tbody>
@@ -54,6 +60,7 @@
                     <td>{{ $p->arm_circumference }}</td>
                     <td>@include('partials.badge-gizi', ['status' => $p->nutrition_status])</td>
                     <td>{{ $p->notes ?: '-' }}</td>
+                    @if ($tulis)
                     <td class="aksi">
                         <a class="btn btn-outline btn-ikon" href="{{ route('kader.pemeriksaan.edit', $p) }}"
                         title="Ubah data" aria-label="Ubah pemeriksaan {{ $p->toddler->name }}">
@@ -70,14 +77,15 @@
                             </button>
                         </form>
                     </td>
+                    @endif
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10">
+                    <td colspan="{{ $tulis ? 10 : 9 }}">
                         @include('partials.empty', [
                             'ikon'  => 'fa-weight-scale',
                             'judul' => 'Belum ada pemeriksaan bulan ini',
-                            'teks'  => 'Klik tombol + Tambah Pemeriksaan di atas untuk mencatat pemeriksaan pertama bulan ' . $bulanLabel . '.',
+                            'teks'  => $tulis ? 'Klik tombol + Tambah Pemeriksaan di atas untuk mencatat pemeriksaan pertama bulan ' . $bulanLabel . '.' : 'Pemeriksaan diisi oleh kader.',
                         ])
                     </td>
                 </tr>
@@ -87,5 +95,5 @@
 </div>
 
 <p class="hint"><i class="fa-solid fa-circle-info"></i> Halaman ini hanya menampilkan pemeriksaan bulan berjalan. Data bulan sebelumnya otomatis terkunci dan bisa dilihat di
-    <a class="tautan" href="{{ route('kader.laporan.index') }}">Laporan Bulanan</a>.</p>
+    <a class="tautan" href="{{ route($area . '.laporan.index') }}">Laporan Bulanan</a>.</p>
 @endsection

@@ -20,7 +20,7 @@ class WajibGantiSandi
         // Akun baru atau yang baru direset wajib mengganti kata sandi dulu.
         // Halaman ganti sandi itu sendiri tetap boleh dibuka.
         if ($user && $user->must_change_password && ! $request->routeIs('*.sandi', '*.sandi.perbarui')) {
-            return redirect()->route($user->role === 'kader' ? 'kader.sandi' : 'ortu.sandi');
+            return redirect()->route($user->areaPrefix() . '.sandi');
         }
 
         return $next($request);

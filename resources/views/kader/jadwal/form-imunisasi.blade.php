@@ -1,11 +1,14 @@
 @extends('layouts.app')
 
-@section('title', $imunisasi ? 'Ubah Imunisasi' : 'Catat Imunisasi')
+@section('title', $imunisasi ? 'Ubah Jadwal Imunisasi' : 'Jadwalkan Imunisasi')
 
 @section('content')
-@php $ubah = ! is_null($imunisasi); @endphp
+@php
+    $ubah = ! is_null($imunisasi);
+    $area = 'bidan'; // imunisasi hanya dikelola bidan
+@endphp
 
-<h2 class="judul">{{ $ubah ? 'Ubah Catatan Imunisasi' : 'Catat Imunisasi' }}</h2>
+<h2 class="judul">{{ $ubah ? 'Ubah Jadwal Imunisasi' : 'Jadwalkan Imunisasi' }}</h2>
 
 @if ($errors->any())
     <div class="alert alert-error">
@@ -14,14 +17,14 @@
     </div>
 @endif
 
-<form method="POST" action="{{ $ubah ? route('kader.imunisasi.update', $imunisasi) : route('kader.imunisasi.store') }}">
+<form method="POST" action="{{ $ubah ? route($area . '.imunisasi.update', $imunisasi) : route($area . '.imunisasi.store') }}">
     @csrf
     @if ($ubah)
         @method('PUT')
     @endif
 
     <fieldset class="form-card">
-        <legend><i class="fa-solid fa-syringe"></i> Catatan Imunisasi</legend>
+        <legend><i class="fa-solid fa-syringe"></i> Jadwal Imunisasi</legend>
 
         <div class="fg">
             <label for="toddler_id">Balita</label>
@@ -39,9 +42,14 @@
 
         <div class="fg">
             <label for="vaccine_type">Jenis imunisasi</label>
-            <input type="text" id="vaccine_type" name="vaccine_type"
-                   value="{{ old('vaccine_type', $imunisasi?->vaccine_type) }}"
-                   class="@error('vaccine_type') is-invalid @enderror">
+            <select id="vaccine_type" name="vaccine_type" class="@error('vaccine_type') is-invalid @enderror">
+                <option value="">Pilih...</option>
+                @foreach ($daftarJenis as $jenis)
+                    <option value="{{ $jenis }}" @selected(old('vaccine_type', $imunisasi?->vaccine_type) === $jenis)>
+                        {{ $jenis }}
+                    </option>
+                @endforeach
+            </select>
             @error('vaccine_type') <div class="pesan-error">{{ $message }}</div> @enderror
         </div>
 
@@ -65,6 +73,6 @@
     </fieldset>
 
     <button class="btn" type="submit">Simpan</button>
-    <a class="btn btn-outline" href="{{ route('kader.jadwal.index') }}">Batal</a>
+    <a class="btn btn-outline" href="{{ route($area . '.jadwal.index') }}">Batal</a>
 </form>
 @endsection

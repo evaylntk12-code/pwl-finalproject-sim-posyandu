@@ -3,46 +3,52 @@
 @section('title', 'Data Balita & Wali')
 
 @section('content')
+@php
+    $area  = auth()->user()->areaPrefix(); // kader atau bidan
+    $tulis = $area === 'kader';            // hanya kader yang boleh menambah/ubah/hapus/reset
+@endphp
 <h2 class="judul">Daftar Balita</h2>
 
-<div class="bar"> 
-    <form method="GET" action="{{ route('kader.balita.index') }}" class="cari"> 
-        <div class="fg fg-cari"> 
-            <label for="q">Cari</label> 
-            <input type="text" id="q" name="q" value="{{ $q }}" placeholder="Nama balita / wali / email"> 
-        </div> 
-        <div class="fg"> 
-            <label for="gender">Jenis kelamin</label> 
-            <select id="gender" name="gender"> 
-                <option value="">Semua</option> 
-                <option value="L" @selected($gender === 'L')>Laki-laki</option> 
-                <option value="P" @selected($gender === 'P')>Perempuan</option> 
-            </select> 
-        </div> 
-        <div class="fg"> 
-            <label for="urut">Urutkan</label> 
-            <select id="urut" name="urut"> 
-                @foreach ($opsiUrut as $kunci => $opsi) 
-                    <option value="{{ $kunci }}" @selected($urut === $kunci)>{{ $opsi[2] }}</option> 
-                @endforeach 
-            </select> 
-        </div> 
-        <button class="btn" type="submit">Terapkan</button> 
-        <a class="btn btn-outline" href="{{ route('kader.balita.index') }}">Reset</a> 
-    </form> 
-    <a class="btn" href="{{ route('kader.balita.create') }}">+ Tambah Balita</a> 
-</div> 
- 
-<p class="hint"> 
-    @if ($balita->total() > 0) 
-        Menampilkan {{ $balita->firstItem() }}-{{ $balita->lastItem() }} dari {{ $balita->total() }} balita. 
-    @else 
-        Tidak ada data yang ditampilkan. 
-    @endif 
-    @if ($q !== '') 
-        Hasil pencarian: <strong>{{ $q }}</strong> 
-    @endif 
-</p> 
+<div class="bar">
+    <form method="GET" action="{{ route($area . '.balita.index') }}" class="cari">
+        <div class="fg fg-cari">
+            <label for="q">Cari</label>
+            <input type="text" id="q" name="q" value="{{ $q }}" placeholder="Nama balita / wali / email">
+        </div>
+        <div class="fg">
+            <label for="gender">Jenis kelamin</label>
+            <select id="gender" name="gender">
+                <option value="">Semua</option>
+                <option value="L" @selected($gender === 'L')>Laki-laki</option>
+                <option value="P" @selected($gender === 'P')>Perempuan</option>
+            </select>
+        </div>
+        <div class="fg">
+            <label for="urut">Urutkan</label>
+            <select id="urut" name="urut">
+                @foreach ($opsiUrut as $kunci => $opsi)
+                    <option value="{{ $kunci }}" @selected($urut === $kunci)>{{ $opsi[2] }}</option>
+                @endforeach
+            </select>
+        </div>
+        <button class="btn" type="submit">Terapkan</button>
+        <a class="btn btn-outline" href="{{ route($area . '.balita.index') }}">Reset</a>
+    </form>
+    @if ($tulis)
+        <a class="btn" href="{{ route('kader.balita.create') }}">+ Tambah Balita</a>
+    @endif
+</div>
+
+<p class="hint">
+    @if ($balita->total() > 0)
+        Menampilkan {{ $balita->firstItem() }}-{{ $balita->lastItem() }} dari {{ $balita->total() }} balita.
+    @else
+        Tidak ada data yang ditampilkan.
+    @endif
+    @if ($q !== '')
+        Hasil pencarian: <strong>{{ $q }}</strong>
+    @endif
+</p>
 
 <div class="tb">
     <table>
@@ -69,6 +75,7 @@
                             <i class="fa-solid fa-eye"></i>
                         </button>
 
+                        @if ($tulis)
                         <a class="btn btn-outline btn-ikon" href="{{ route('kader.balita.edit', $b) }}"
                         title="Ubah data" aria-label="Ubah data {{ $b->name }}">
                             <i class="fa-solid fa-pen-to-square"></i>
@@ -92,24 +99,25 @@
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
+                        @endif
                     </td>
                 </tr>
             @empty
                 <tr>
                     <td colspan="8">
-                        @if($q!=="||$gender!==")
+                        @if ($q !== '' || $gender !== '')
                             @include('partials.empty',[
                             'ikon' => 'fa-magnifying-glass',
                             'judul' => 'Data tidak ditemukan',
                             'teks' => 'Tidak ada balita yang cocok dengan pencarian atau filter. Coba kata kunci lain, atau reset filter.',
-                            'rute' => route('kader.balita.index'),
+                            'rute' => route($area . '.balita.index'),
                             'tombol' => 'Reset Filter',
                             ])
                         @else
                             @include('partials.empty',[
                             'ikon' => 'fa-baby',
                             'judul' => 'Belum ada data balita',
-                            'teks' => 'Klik tombol + Tambah Balita di atas untuk menambahkan balita pertama beserta akun orang tuanya.',
+                            'teks' => $tulis ? 'Klik tombol + Tambah Balita di atas untuk menambahkan balita pertama beserta akun orang tuanya.' : 'Data balita diisi oleh kader.',
                             ])
                         @endif
                     </td>

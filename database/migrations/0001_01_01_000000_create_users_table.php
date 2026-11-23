@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role', 20);                              // kader atau orang_tua
+            $table->string('role', 20);                              // kader, bidan, atau orang_tua (RBAC satu kolom)
             $table->string('phone', 20)->nullable();                 // no. HP wali
             $table->text('address')->nullable();                     // alamat wali
             $table->boolean('must_change_password')->default(false); // wajib ganti sandi saat masuk

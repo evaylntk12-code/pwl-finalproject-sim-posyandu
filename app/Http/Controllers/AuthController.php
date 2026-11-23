@@ -49,8 +49,7 @@ class AuthController extends Controller
 
     private function dashboardUntuk($user)
     {
-        return $user->role === 'kader'
-            ? redirect()->route('kader.dashboard')
-            : redirect()->route('ortu.dashboard');
+        // admin.dashboard, kader.dashboard, atau ortu.dashboard
+        return redirect()->route($user->dashboardRoute());
     }
 }

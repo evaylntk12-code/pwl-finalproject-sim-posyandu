@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Examination;
 use App\Models\Toddler;
 use Illuminate\Database\Seeder;
@@ -10,6 +11,8 @@ class ExaminationSeeder extends Seeder
 {
     public function run(): void
     {
+        // Data contoh dianggap dicatat oleh kader demo
+        $kader = User::where('role', User::ROLE_KADER)->first();
         // [balita, tanggal, BB, TB, L. kepala, L. lengan, status gizi, catatan]
         $data = [
             // Oktober 2026 (bulan berjalan)
@@ -29,6 +32,7 @@ class ExaminationSeeder extends Seeder
 
             Examination::create([
                 'toddler_id'         => $anak->id,
+                'user_id'            => $kader?->id,
                 'examination_date'   => $tanggal,
                 'weight'             => $bb,
                 'height'             => $tb,

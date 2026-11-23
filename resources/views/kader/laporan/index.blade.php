@@ -29,7 +29,7 @@
 </div>
 
 {{-- Filter: tab tetap terbawa --}}
-<form method="GET" action="{{ route('kader.laporan.index') }}" class="bar">
+<form method="GET" action="{{ route($ruteLaporan) }}" class="bar">
     <input type="hidden" name="tab" value="{{ $tab }}">
 
     <div class="fg"><label for="bulan">Bulan</label>
@@ -67,7 +67,7 @@
 <nav class="tabs">
     @foreach ($tabs as $kode => [$ikon, $label])
         <a class="tab {{ $tab === $kode ? 'on' : '' }}"
-           href="{{ route('kader.laporan.index', ['tab' => $kode, 'bulan' => $bulan, 'tahun' => $tahun, 'balita' => $balitaDipilih]) }}">
+           href="{{ route($ruteLaporan, ['tab' => $kode, 'bulan' => $bulan, 'tahun' => $tahun, 'balita' => $balitaDipilih]) }}">
             <i class="fa-solid {{ $ikon }}"></i> {{ $label }}
             <span class="jml">{{ $jumlah[$kode] }}</span>
         </a>

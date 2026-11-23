@@ -39,7 +39,7 @@ class AkunController extends Controller
             'must_change_password' => false, // kewajiban ganti sandi selesai
         ]);
 
-        $tujuan = $request->user()->role === 'kader' ? 'kader.dashboard' : 'ortu.dashboard';
+        $tujuan = $request->user()->dashboardRoute();
 
         return redirect()
             ->route($tujuan)

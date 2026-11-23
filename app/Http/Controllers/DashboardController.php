@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Examination;
 use App\Models\Immunization;
 use App\Models\Schedule;
@@ -10,6 +11,40 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+        public function bidan()
+    {
+        $tahun = now()->year;
+        $bulan = now()->month;
+
+        $jumlahKader  = User::where('role', User::ROLE_KADER)->count();
+        $jumlahBalita = Toddler::count();
+
+        $jumlahPemeriksaan = Examination::whereYear('examination_date', $tahun)
+            ->whereMonth('examination_date', $bulan)
+            ->count();
+
+        // Gizi kurang dan gizi lebih sama-sama perlu tindak lanjut
+        $perluPerhatian = Examination::with('toddler')
+            ->whereYear('examination_date', $tahun)
+            ->whereMonth('examination_date', $bulan)
+            ->whereIn('nutrition_status', ['Gizi Kurang', 'Gizi Lebih'])
+            ->orderBy('examination_date')
+            ->get();
+
+        // Imunisasi yang menunggu ditandai selesai oleh bidan
+        $imunisasiTerjadwal = Immunization::with('toddler')
+            ->where('status', 'Terjadwal')
+            ->orderBy('immunization_date')
+            ->get();
+
+        return view('bidan.dashboard', compact(
+            'jumlahKader',
+            'jumlahBalita',
+            'jumlahPemeriksaan',
+            'perluPerhatian',
+            'imunisasiTerjadwal'
+        ));
+    }
     public function kader()
     {
         $tahun = now()->year;

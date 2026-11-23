@@ -15,11 +15,11 @@ class OrangTuaController extends Controller
 
         // Daftar tahun diambil dari data milik anak ini (terbaru di atas)
         $daftarTahun = $anak->examinations()
-            ->selectRaw('YEAR(examination_date) as y')
-            ->distinct()
-            ->orderByDesc('y')
-            ->pluck('y')
-            ->map(fn ($y) => (string) $y);
+            ->pluck('examination_date')
+            ->map(fn ($tanggal) => (string) $tanggal->year)
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         // Validasi pilihan filter, kalau tidak valid tampilkan semua tahun
         $tahun = (string) $request->query('tahun', 'semua');

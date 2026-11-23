@@ -35,9 +35,9 @@ class LaporanController extends Controller
 
         // Daftar tahun diambil dari data yang ada, ditambah tahun berjalan (terbaru di atas)
         $daftarTahun = collect()
-            ->merge(Examination::selectRaw('YEAR(examination_date) as y')->distinct()->pluck('y'))
-            ->merge(Immunization::selectRaw('YEAR(immunization_date) as y')->distinct()->pluck('y'))
-            ->merge(Schedule::selectRaw('YEAR(activity_date) as y')->distinct()->pluck('y'))
+            ->merge(Examination::pluck('examination_date')->map(fn ($d) => $d->year))
+            ->merge(Immunization::pluck('immunization_date')->map(fn ($d) => $d->year))
+            ->merge(Schedule::pluck('activity_date')->map(fn ($d) => $d->year))
             ->push(now()->year)
             ->map(fn ($y) => (string) $y)
             ->unique()
@@ -93,6 +93,7 @@ class LaporanController extends Controller
             ->get();
 
         return view('kader.laporan.index', [
+            'ruteLaporan'       => $request->user()->areaPrefix() . '.laporan.index',
             'tab'               => $tab,
             'judulCetak'        => $judulTab[$tab],
             'periode'           => $periode,

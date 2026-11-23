@@ -14,11 +14,16 @@ return new class extends Migration
         Schema::create('immunizations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('toddler_id')->constrained()->cascadeOnDelete();
+            // Akun yang mencatat. nullOnDelete: riwayat tetap ada walau akun kadernya dihapus.
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('vaccine_type', 50);
             $table->date('immunization_date');
             $table->date('next_date')->nullable();
             $table->string('status', 15)->default('Terjadwal'); // Terjadwal / Selesai
             $table->timestamps();
+
+            // Balita yang sama tidak boleh punya imunisasi sejenis pada tanggal yang sama
+            $table->unique(['toddler_id', 'vaccine_type', 'immunization_date']);
         });
     }
 

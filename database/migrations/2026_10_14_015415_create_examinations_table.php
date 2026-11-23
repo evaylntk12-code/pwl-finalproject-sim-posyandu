@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('examinations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('toddler_id')->constrained()->cascadeOnDelete();
+            // Akun yang mencatat. nullOnDelete: riwayat tetap ada walau akun kadernya dihapus.
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->date('examination_date');
             $table->decimal('weight', 5, 2);             // kg
             $table->decimal('height', 5, 1);             // cm

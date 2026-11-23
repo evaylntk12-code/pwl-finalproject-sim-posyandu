@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\MembuatSandiSementara;
 use App\Models\Toddler;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,7 +12,9 @@ use Illuminate\Validation\Rule;
 
 class BalitaController extends Controller
 {
-        // READ: daftar balita dengan pencarian, filter, pengurutan, dan pagination
+    use MembuatSandiSementara;
+
+    // READ: daftar balita dengan pencarian, filter, pengurutan, dan pagination
     public function index(Request $request)
     {
         // Pilihan urutan (whitelist). Kunci = nilai parameter ?urut=, isi = [kolom, arah, label].
@@ -54,7 +57,6 @@ class BalitaController extends Controller
         return view('kader.balita.index', compact('balita', 'opsiUrut', 'urut', 'q', 'gender'));
     }
 
-
     // CREATE: hanya menampilkan form
     public function create()
     {
@@ -71,7 +73,7 @@ class BalitaController extends Controller
                 'name'                 => $validated['guardian_name'],
                 'email'                => $validated['email'],
                 'password'             => Hash::make($validated['password']), // disimpan dalam bentuk hash
-                'role'                 => 'orang_tua',
+                'role'                 => User::ROLE_ORANG_TUA,
                 'phone'                => $validated['phone'] ?? null,
                 'address'              => $validated['address'] ?? null,
                 'must_change_password' => true, // wajib ganti kata sandi saat masuk pertama
@@ -132,8 +134,8 @@ class BalitaController extends Controller
             // Pemeriksaan dan imunisasi ikut terhapus otomatis (CASCADE di database)
             $balita->delete();
 
-            // Akun dihapus setelah balita (aturan RESTRICT). Akun kader tidak pernah dihapus lewat sini.
-            if ($akun->role === 'orang_tua') {
+            // Akun dihapus setelah balita (aturan RESTRICT). Akun kader dan admin tidak pernah dihapus lewat sini.
+            if ($akun->role === User::ROLE_ORANG_TUA) {
                 $akun->delete();
             }
         });
@@ -146,7 +148,7 @@ class BalitaController extends Controller
     // RESET SANDI: buat kata sandi sementara, tampilkan sekali lewat flash message
     public function resetSandi(Toddler $balita)
     {
-        $sementara = $this->sandiSementara();
+        $sementara = $this->sandiSementara(); // dari trait MembuatSandiSementara
 
         $balita->user->update([
             'password'             => Hash::make($sementara),
@@ -161,16 +163,6 @@ class BalitaController extends Controller
     }
 
     // ---------- Bagian pendukung ----------
-
-    // 8 karakter acak, tanpa karakter yang mudah tertukar (0/O, 1/I)
-    private function sandiSementara(): string
-    {
-        $huruf = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-
-        return collect(range(1, 8))
-            ->map(fn () => $huruf[random_int(0, strlen($huruf) - 1)])
-            ->implode('');
-    }
 
     private function aturan(?Toddler $balita = null): array
     {
